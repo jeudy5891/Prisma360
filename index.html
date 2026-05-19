@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codia — Transformación Digital Empresarial</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:          #07091A;
+            --bg-2:        #0C1128;
+            --surface:     #111827;
+            --surface-2:   #1A2237;
+            --border:      rgba(255,255,255,0.07);
+            --accent:      #00E5A0;
+            --accent-glow: rgba(0,229,160,0.25);
+            --accent-dim:  rgba(0,229,160,0.10);
+            --orange:      #FF5C35;
+            --text:        #EDF2FF;
+            --muted:       #6B80A0;
+            --subtle:      #2D3D55;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* ─── NAV ─── */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            padding: 1.25rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            background: rgba(7,9,26,0.82);
+            border-bottom: 1px solid var(--border);
+            transition: border-color 0.3s;
+        }
+
+        .nav-logo {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: var(--text);
+            text-decoration: none;
+            letter-spacing: -0.02em;
+        }
+        .nav-logo span { color: var(--accent); }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+        .nav-links a {
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover { color: var(--text); }
+
+        .nav-cta {
+            background: var(--accent);
+            color: var(--bg);
+            padding: 0.6rem 1.4rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+        .nav-cta:hover { opacity: 0.88; transform: translateY(-1px); }
+
+        /* ─── HERO ─── */
+        #hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 8rem 2rem 5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 60% at 50% -5%,  rgba(0,229,160,0.13) 0%, transparent 60%),
+                radial-gradient(ellipse 55% 40% at 80% 85%,  rgba(255,92,53,0.09) 0%, transparent 50%),
+                radial-gradient(ellipse 40% 30% at 10% 70%,  rgba(0,229,160,0.05) 0%, transparent 50%);
+        }
+
+        .hero-grid {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(var(--border) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 64px 64px;
+            mask-image: radial-gradient(ellipse 90% 90% at 50% 40%, black 20%, transparent 75%);
+            -webkit-mask-image: radial-gradient(ellipse 90% 90% at 50% 40%, black 20%, transparent 75%);
+        }
+
+        .hero-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--accent-dim);
+            border: 1px solid rgba(0,229,160,0.28);
+            padding: 0.4rem 1rem;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--accent);
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            margin-bottom: 2.25rem;
+        }
+
+        .hero-tag-dot {
+            width: 6px; height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: blink 2.2s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50%       { opacity: 0.4; transform: scale(0.75); }
+        }
+
+        h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: clamp(2.8rem, 7vw, 6.2rem);
+            line-height: 1.0;
+            letter-spacing: -0.03em;
+            margin-bottom: 1.6rem;
+        }
+        h1 em { font-style: normal; color: var(--accent); }
+
+        .hero-sub {
+            font-size: clamp(1rem, 1.8vw, 1.2rem);
+            color: var(--muted);
+            max-width: 520px;
+            line-height: 1.75;
+            margin-bottom: 2.75rem;
+            font-weight: 300;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: var(--bg);
+            padding: 0.9rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 32px var(--accent-glow);
+        }
+
+        .btn-ghost {
+            color: var(--text);
+            padding: 0.9rem 2rem;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            text-decoration: none;
+            border: 1px solid var(--border);
+            background: rgba(255,255,255,0.03);
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .btn-ghost:hover {
+            border-color: rgba(255,255,255,0.18);
+            background: rgba(255,255,255,0.06);
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 3rem;
+            margin-top: 4.5rem;
+            padding-top: 3rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .stat-number {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.1rem;
+            font-weight: 800;
+            color: var(--text);
+        }
+        .stat-number span { color: var(--accent); }
+
+        .stat-label {
+            font-size: 0.78rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-top: 0.2rem;
+        }
+
+        /* ─── SHARED SECTION STYLES ─── */
+        section { padding: 7rem 2rem; }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-label {
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: clamp(2rem, 4vw, 3.4rem);
+            letter-spacing: -0.025em;
+            line-height: 1.08;
+            margin-bottom: 1.5rem;
+        }
+        h2 em { font-style: normal; color: var(--accent); }
+
+        .section-sub {
+            font-size: 1.05rem;
+            color: var(--muted);
+            max-width: 500px;
+            line-height: 1.75;
+            font-weight: 300;
+        }
+
+        /* ─── PROBLEMA ─── */
+        #problema { background: var(--bg-2); }
+
+        .problem-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 5rem;
+            align-items: start;
+            margin-top: 4rem;
+        }
+
+        .problem-intro { padding-top: 0.5rem; }
+
+        .problem-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.85rem;
+        }
+
+        .problem-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.1rem 1.3rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+        .problem-item:hover {
+            border-color: rgba(255,92,53,0.3);
+            transform: translateY(-2px);
+        }
+
+        .problem-x {
+            color: var(--orange);
+            font-weight: 700;
+            font-size: 1rem;
+            line-height: 1.5;
+            flex-shrink: 0;
+        }
+
+        .problem-text {
+            font-size: 0.845rem;
+            color: var(--muted);
+            line-height: 1.55;
+        }
+
+        /* ─── SERVICIOS ─── */
+        #servicios { background: var(--bg); }
+
+        .services-header {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: end;
+            margin-bottom: 3rem;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .service-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2.25rem;
+            transition: border-color 0.3s, transform 0.3s, background 0.3s;
+            position: relative;
+            overflow: hidden;
+            cursor: default;
+        }
+        .service-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(140deg, var(--accent-dim) 0%, transparent 55%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .service-card:hover {
+            border-color: rgba(0,229,160,0.28);
+            transform: translateY(-5px);
+            background: var(--surface-2);
+        }
+        .service-card:hover::before { opacity: 1; }
+
+        .service-icon {
+            width: 50px; height: 50px;
+            background: var(--accent-dim);
+            border: 1px solid rgba(0,229,160,0.22);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.6rem;
+            position: relative;
+            z-index: 1;
+            color: var(--accent);
+        }
+
+        .service-card h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 0.9rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .service-items {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.45rem;
+            position: relative;
+            z-index: 1;
+        }
+        .service-items li {
+            font-size: 0.82rem;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+        }
+        .service-items li::before {
+            content: '';
+            width: 4px; height: 4px;
+            background: var(--accent);
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        /* ─── SECTORES ─── */
+        #sectores { background: var(--bg-2); }
+
+        .sectors-intro {
+            margin-bottom: 3rem;
+        }
+
+        .sectors-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1rem;
+        }
+
+        .sector-chip {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.4rem 0.75rem;
+            text-align: center;
+            font-size: 0.84rem;
+            font-weight: 500;
+            color: var(--muted);
+            transition: all 0.22s;
+            cursor: default;
+            line-height: 1.4;
+        }
+        .sector-chip:hover {
+            border-color: rgba(0,229,160,0.3);
+            color: var(--text);
+            background: var(--surface-2);
+            transform: translateY(-3px);
+        }
+        .sector-chip-icon {
+            font-size: 1.6rem;
+            margin-bottom: 0.65rem;
+            display: block;
+        }
+
+        /* ─── PROCESO ─── */
+        #proceso { background: var(--bg); overflow: hidden; }
+
+        .process-header {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: end;
+            margin-bottom: 4.5rem;
+        }
+
+        .process-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            position: relative;
+            margin-bottom: 3rem;
+        }
+        .process-row:last-child { margin-bottom: 0; }
+
+        .process-row::before {
+            content: '';
+            position: absolute;
+            top: 1.5rem;
+            left: 1.8rem;
+            right: 1.8rem;
+            height: 1px;
+            background: linear-gradient(90deg,
+                rgba(0,229,160,0.6) 0%,
+                rgba(0,229,160,0.15) 100%);
+        }
+
+        .step { position: relative; }
+
+        .step-num {
+            width: 3rem; height: 3rem;
+            border-radius: 50%;
+            background: var(--bg-2);
+            border: 2px solid var(--subtle);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 0.82rem;
+            color: var(--muted);
+            margin-bottom: 1.3rem;
+            position: relative;
+            z-index: 1;
+            transition: all 0.25s;
+        }
+
+        .step:nth-child(1) .step-num,
+        .step:nth-child(2) .step-num {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-dim);
+        }
+
+        .step h4 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .step p {
+            font-size: 0.8rem;
+            color: var(--muted);
+            line-height: 1.65;
+        }
+
+        /* ─── SUSCRIPCIONES ─── */
+        #suscripciones { background: var(--bg-2); }
+
+        .pricing-header { margin-bottom: 3.5rem; }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        .pricing-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2.25rem;
+            position: relative;
+            transition: transform 0.3s, border-color 0.3s;
+        }
+        .pricing-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0,229,160,0.25);
+        }
+        .pricing-card.featured {
+            border-color: rgba(0,229,160,0.5);
+            background: linear-gradient(180deg, rgba(0,229,160,0.07) 0%, var(--surface) 45%);
+            transform: translateY(-8px);
+        }
+        .pricing-card.featured:hover { transform: translateY(-12px); }
+
+        .pricing-badge {
+            position: absolute;
+            top: -13px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent);
+            color: var(--bg);
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+            padding: 0.3rem 1rem;
+            border-radius: 100px;
+            white-space: nowrap;
+        }
+
+        .pricing-plan {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 0.75rem;
+        }
+
+        .pricing-price {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 900;
+            font-size: 3rem;
+            line-height: 1;
+            color: var(--text);
+            letter-spacing: -0.03em;
+            margin-bottom: 0.4rem;
+        }
+        .pricing-price sup {
+            font-size: 1.2rem;
+            font-weight: 700;
+            vertical-align: super;
+        }
+
+        .pricing-price-note {
+            font-size: 0.78rem;
+            color: var(--muted);
+            margin-bottom: 1.75rem;
+        }
+
+        .pricing-divider {
+            height: 1px;
+            background: var(--border);
+            margin-bottom: 1.75rem;
+        }
+
+        .pricing-features {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+            margin-bottom: 2rem;
+        }
+        .pricing-features li {
+            font-size: 0.855rem;
+            color: var(--muted);
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            line-height: 1.45;
+        }
+        .pricing-features .check {
+            color: var(--accent);
+            font-size: 0.85rem;
+            flex-shrink: 0;
+            margin-top: 0.05rem;
+        }
+        .pricing-features li.off {
+            opacity: 0.35;
+            text-decoration: line-through;
+        }
+        .pricing-features li.off .check { color: var(--muted); }
+
+        .pricing-cta {
+            display: block;
+            text-align: center;
+            padding: 0.85rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            border: 1px solid var(--border);
+            color: var(--text);
+            background: rgba(255,255,255,0.04);
+            transition: all 0.2s;
+        }
+        .pricing-cta:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(255,255,255,0.2);
+        }
+        .pricing-card.featured .pricing-cta {
+            background: var(--accent);
+            color: var(--bg);
+            border-color: var(--accent);
+        }
+        .pricing-card.featured .pricing-cta:hover {
+            opacity: 0.88;
+            box-shadow: 0 8px 28px var(--accent-glow);
+        }
+
+        /* ─── DESARROLLO A LA MEDIDA ─── */
+        #desarrollo { background: var(--bg); }
+
+        .desarrollo-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.4fr;
+            gap: 5rem;
+            align-items: start;
+            margin-top: 4rem;
+        }
+
+        .desarrollo-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 2rem;
+        }
+        .desarrollo-tag {
+            background: var(--accent-dim);
+            border: 1px solid rgba(0,229,160,0.2);
+            color: var(--accent);
+            font-size: 0.77rem;
+            font-weight: 500;
+            padding: 0.35rem 0.9rem;
+            border-radius: 100px;
+        }
+
+        .desarrollo-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 0.9rem;
+        }
+
+        .proyecto-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.5rem 1.75rem;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 1.5rem;
+            align-items: center;
+            transition: border-color 0.22s, transform 0.22s;
+            cursor: default;
+        }
+        .proyecto-card:hover {
+            border-color: rgba(0,229,160,0.28);
+            transform: translateX(5px);
+        }
+
+        .proyecto-name {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 0.95rem;
+            margin-bottom: 0.35rem;
+        }
+        .proyecto-desc {
+            font-size: 0.8rem;
+            color: var(--muted);
+            line-height: 1.55;
+        }
+
+        .proyecto-meta { text-align: right; flex-shrink: 0; }
+        .proyecto-price {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 900;
+            font-size: 1.05rem;
+            color: var(--accent);
+            white-space: nowrap;
+        }
+        .proyecto-time {
+            font-size: 0.72rem;
+            color: var(--muted);
+            margin-top: 0.2rem;
+        }
+
+        /* ─── CTA FINAL ─── */
+        #cta {
+            background: var(--bg);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-glow {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse 65% 85% at 50% 50%,
+                rgba(0,229,160,0.08) 0%, transparent 70%);
+        }
+
+        .cta-border {
+            position: absolute;
+            inset: 2rem;
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            pointer-events: none;
+        }
+
+        #cta .container { position: relative; z-index: 1; }
+
+        #cta h2 {
+            font-size: clamp(2.4rem, 5.5vw, 4.2rem);
+            max-width: 750px;
+            margin: 0 auto 1.5rem;
+        }
+
+        #cta .section-sub {
+            max-width: 440px;
+            margin: 0 auto 2.75rem;
+        }
+
+        .cta-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* ─── FOOTER ─── */
+        footer {
+            background: var(--bg-2);
+            border-top: 1px solid var(--border);
+            padding: 2.5rem 2rem;
+        }
+
+        .footer-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-logo {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 1.25rem;
+            color: var(--text);
+            text-decoration: none;
+        }
+        .footer-logo span { color: var(--accent); }
+
+        .footer-text {
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        /* ─── ANIMATIONS ─── */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(28px);
+            transition: opacity 0.65s ease, transform 0.65s ease;
+        }
+        .fade-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 900px) {
+            .nav-links { display: none; }
+            .problem-grid { grid-template-columns: 1fr; gap: 3rem; }
+            .services-header { grid-template-columns: 1fr; gap: 1.5rem; }
+            .services-grid { grid-template-columns: 1fr; }
+            .sectors-grid { grid-template-columns: repeat(2, 1fr); }
+            .process-header { grid-template-columns: 1fr; }
+            .process-row { grid-template-columns: repeat(2, 1fr); }
+            .process-row::before { display: none; }
+            .pricing-grid { grid-template-columns: 1fr; }
+            .pricing-card.featured { transform: none; }
+            .pricing-card.featured:hover { transform: translateY(-5px); }
+            .desarrollo-grid { grid-template-columns: 1fr; gap: 3rem; }
+            .hero-stats { flex-wrap: wrap; gap: 2rem; }
+        }
+
+        @media (max-width: 560px) {
+            h1 { font-size: 2.4rem; }
+            .problem-list { grid-template-columns: 1fr; }
+            .sectors-grid { grid-template-columns: repeat(2, 1fr); }
+            .process-row { grid-template-columns: 1fr; }
+            .tech-categories { grid-template-columns: 1fr; }
+            .cta-border { inset: 1rem; border-radius: 16px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAV -->
+    <nav id="navbar">
+        <a href="#" class="nav-logo">Co<span>dia</span></a>
+        <ul class="nav-links">
+            <li><a href="#servicios">Servicios</a></li>
+            <li><a href="#sectores">Sectores</a></li>
+            <li><a href="#proceso">Proceso</a></li>
+            <li><a href="#suscripciones">Planes</a></li>
+            <li><a href="#desarrollo">Proyectos</a></li>
+        </ul>
+        <a href="#cta" class="nav-cta">Contáctanos</a>
+    </nav>
+
+    <!-- HERO -->
+    <section id="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-grid"></div>
+        <div class="hero-inner">
+            <div class="hero-tag">
+                <span class="hero-tag-dot"></span>
+                Transformación digital empresarial
+            </div>
+            <h1>Digitaliza tu empresa.<br><em>Automatiza</em> tu futuro.</h1>
+            <p class="hero-sub">
+                Desarrollamos sistemas a la medida que reemplazan procesos manuales por
+                plataformas modernas, eficientes y escalables para tu organización.
+            </p>
+            <div class="hero-actions">
+                <a href="#servicios" class="btn-primary">
+                    Ver servicios
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </a>
+                <a href="#cta" class="btn-ghost">Hablar con nosotros</a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat">
+                    <div class="stat-number">10<span>+</span></div>
+                    <div class="stat-label">Sectores atendidos</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">4</div>
+                    <div class="stat-label">Líneas de servicio</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">8</div>
+                    <div class="stat-label">Fases de metodología</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PROBLEMA -->
+    <section id="problema">
+        <div class="container">
+            <div class="problem-grid">
+                <div class="problem-intro">
+                    <div class="section-label fade-up">El problema</div>
+                    <h2 class="fade-up">¿Tu empresa sigue<br><em>atrapada en el pasado?</em></h2>
+                    <p class="section-sub fade-up">
+                        Muchas organizaciones aún dependen de procesos manuales que generan
+                        errores, retrasos y pérdida de control operativo. Nosotros los transformamos.
+                    </p>
+                </div>
+                <div class="problem-list">
+                    <div class="problem-item fade-up">
+                        <span class="problem-x">✕</span>
+                        <span class="problem-text">Gestión manual con documentos físicos</span>
+                    </div>
+                    <div class="problem-item fade-up">
+                        <span class="problem-x">✕</span>
+                        <span class="problem-text">Información desorganizada en hojas de cálculo</span>
+                    </div>
+                    <div class="problem-item fade-up">
+                        <span class="problem-x">✕</span>
+                        <span class="problem-text">Duplicación y errores humanos frecuentes</span>
+                    </div>
+                    <div class="problem-item fade-up">
+                        <span class="problem-x">✕</span>
+                        <span class="problem-text">Dificultad para generar reportes a tiempo</span>
+                    </div>
+                    <div class="problem-item fade-up">
+                        <span class="problem-x">✕</span>
+                        <span class="problem-text">Procesos lentos de pago y facturación</span>
+                    </div>
+                    <div class="problem-item fade-up">
+                        <span class="problem-x">✕</span>
+                        <span class="problem-text">Falta de control y trazabilidad operativa</span>
+                    </div>
+                    <div class="problem-item fade-up">
+                        <span class="problem-x">✕</span>
+                        <span class="problem-text">Mala comunicación entre equipos internos</span>
+                    </div>
+                    <div class="problem-item fade-up">
+                        <span class="problem-x">✕</span>
+                        <span class="problem-text">Sin visibilidad real del negocio en tiempo real</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SERVICIOS -->
+    <section id="servicios">
+        <div class="container">
+            <div class="services-header">
+                <div>
+                    <div class="section-label fade-up">Servicios</div>
+                    <h2 class="fade-up">Lo que construimos<br><em>para ti</em></h2>
+                </div>
+                <p class="section-sub fade-up">
+                    Cuatro líneas de soluciones tecnológicas diseñadas para cubrir todo el
+                    espectro de necesidades digitales de tu organización.
+                </p>
+            </div>
+            <div class="services-grid">
+                <div class="service-card fade-up">
+                    <div class="service-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                    </div>
+                    <h3>Desarrollo Web Empresarial</h3>
+                    <ul class="service-items">
+                        <li>Sistemas administrativos y paneles de control</li>
+                        <li>Portales empresariales e intranets</li>
+                        <li>CRM y ERP personalizados</li>
+                        <li>Sistemas de gestión interna</li>
+                    </ul>
+                </div>
+                <div class="service-card fade-up">
+                    <div class="service-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                    </div>
+                    <h3>Desarrollo de Aplicaciones</h3>
+                    <ul class="service-items">
+                        <li>Aplicaciones web y móviles</li>
+                        <li>Dashboards operativos en tiempo real</li>
+                        <li>Plataformas de gestión a la medida</li>
+                        <li>Sistemas administrativos</li>
+                    </ul>
+                </div>
+                <div class="service-card fade-up">
+                    <div class="service-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                    </div>
+                    <h3>Automatización de Procesos</h3>
+                    <ul class="service-items">
+                        <li>Gestión de inventarios y personal</li>
+                        <li>Facturación y control de pagos</li>
+                        <li>Gestión académica y financiera</li>
+                        <li>Reportería automatizada</li>
+                    </ul>
+                </div>
+                <div class="service-card fade-up">
+                    <div class="service-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>
+                    </div>
+                    <h3>Integración de Sistemas</h3>
+                    <ul class="service-items">
+                        <li>Bases de datos centralizadas en la nube</li>
+                        <li>APIs y conexión con servicios externos</li>
+                        <li>Notificaciones y correos automáticos</li>
+                        <li>Control de accesos y reportes</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTORES -->
+    <section id="sectores">
+        <div class="container">
+            <div class="sectors-intro">
+                <div class="section-label fade-up">Sectores</div>
+                <h2 class="fade-up">Industrias que <em>transformamos</em></h2>
+            </div>
+            <div class="sectors-grid">
+                <div class="sector-chip fade-up"><span class="sector-chip-icon">🏫</span>Escuelas y colegios</div>
+                <div class="sector-chip fade-up"><span class="sector-chip-icon">🤝</span>Cooperativas</div>
+                <div class="sector-chip fade-up"><span class="sector-chip-icon">🏪</span>Tiendas y comercios</div>
+                <div class="sector-chip fade-up"><span class="sector-chip-icon">🏢</span>Empresas privadas</div>
+                <div class="sector-chip fade-up"><span class="sector-chip-icon">🏛️</span>Instituciones públicas</div>
+                <div class="sector-chip fade-up"><span class="sector-chip-icon">🏥</span>Clínicas y consultorios</div>
+                <div class="sector-chip fade-up"><span class="sector-chip-icon">🚚</span>Distribuidoras</div>
+                <div class="sector-chip fade-up"><span class="sector-chip-icon">📚</span>Centros de capacitación</div>
+                <div class="sector-chip fade-up"><span class="sector-chip-icon">⚙️</span>Empresas de servicios</div>
+                <div class="sector-chip fade-up"><span class="sector-chip-icon">🏠</span>Negocios familiares</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PROCESO -->
+    <section id="proceso">
+        <div class="container">
+            <div class="process-header">
+                <div>
+                    <div class="section-label fade-up">Metodología</div>
+                    <h2 class="fade-up">Cómo <em>trabajamos</em> contigo</h2>
+                </div>
+                <p class="section-sub fade-up">
+                    Un proceso ágil y estructurado en ocho fases que garantiza resultados
+                    reales, sin sorpresas ni costos ocultos.
+                </p>
+            </div>
+            <div class="process-row fade-up">
+                <div class="step">
+                    <div class="step-num">01</div>
+                    <h4>Análisis del problema</h4>
+                    <p>Entendemos en profundidad los procesos actuales y sus puntos de dolor.</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">02</div>
+                    <h4>Levantamiento de requerimientos</h4>
+                    <p>Documentamos cada necesidad funcional y técnica del proyecto.</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">03</div>
+                    <h4>Diseño de la solución</h4>
+                    <p>Diseñamos la arquitectura y flujo ideal para tu organización.</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">04</div>
+                    <h4>Desarrollo del sistema</h4>
+                    <p>Construimos la solución con tecnologías modernas y estándares de calidad.</p>
+                </div>
+            </div>
+            <div class="process-row fade-up">
+                <div class="step">
+                    <div class="step-num">05</div>
+                    <h4>Validaciones y pruebas</h4>
+                    <p>Probamos exhaustivamente cada funcionalidad antes del lanzamiento.</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">06</div>
+                    <h4>Implementación</h4>
+                    <p>Desplegamos el sistema en producción de forma controlada y segura.</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">07</div>
+                    <h4>Capacitación</h4>
+                    <p>Entrenamos a tu equipo para adoptar la nueva plataforma con confianza.</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">08</div>
+                    <h4>Soporte y mejora continua</h4>
+                    <p>Te acompañamos con soporte técnico y evolución constante del sistema.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SUSCRIPCIONES -->
+    <section id="suscripciones">
+        <div class="container">
+            <div class="pricing-header">
+                <div class="section-label fade-up">Planes</div>
+                <h2 class="fade-up">Suscripciones <em>flexibles</em></h2>
+                <p class="section-sub fade-up">Accede a nuestras plataformas y servicios con un plan mensual adaptado al tamaño y necesidades de tu organización.</p>
+            </div>
+            <div class="pricing-grid">
+                <div class="pricing-card fade-up">
+                    <div class="pricing-plan">Esencial</div>
+                    <div class="pricing-price"><sup>$</sup>149</div>
+                    <div class="pricing-price-note">por mes · hasta 5 usuarios</div>
+                    <div class="pricing-divider"></div>
+                    <ul class="pricing-features">
+                        <li><span class="check">✓</span>1 módulo empresarial incluido</li>
+                        <li><span class="check">✓</span>Panel de administración web</li>
+                        <li><span class="check">✓</span>Reportes básicos exportables</li>
+                        <li><span class="check">✓</span>Soporte por correo (48 h)</li>
+                        <li><span class="check">✓</span>Actualizaciones de seguridad</li>
+                        <li class="off"><span class="check">✕</span>Módulos adicionales</li>
+                        <li class="off"><span class="check">✕</span>Integraciones externas</li>
+                        <li class="off"><span class="check">✕</span>Soporte prioritario</li>
+                    </ul>
+                    <a href="#cta" class="pricing-cta">Comenzar</a>
+                </div>
+                <div class="pricing-card featured fade-up">
+                    <div class="pricing-badge">Más popular</div>
+                    <div class="pricing-plan">Profesional</div>
+                    <div class="pricing-price"><sup>$</sup>349</div>
+                    <div class="pricing-price-note">por mes · hasta 20 usuarios</div>
+                    <div class="pricing-divider"></div>
+                    <ul class="pricing-features">
+                        <li><span class="check">✓</span>3 módulos empresariales incluidos</li>
+                        <li><span class="check">✓</span>Panel web y acceso móvil</li>
+                        <li><span class="check">✓</span>Reportes avanzados y dashboards</li>
+                        <li><span class="check">✓</span>Soporte prioritario (8 h)</li>
+                        <li><span class="check">✓</span>Actualizaciones y mejoras continuas</li>
+                        <li><span class="check">✓</span>2 integraciones externas</li>
+                        <li><span class="check">✓</span>Capacitación inicial incluida</li>
+                        <li class="off"><span class="check">✕</span>Servidor dedicado</li>
+                    </ul>
+                    <a href="#cta" class="pricing-cta">Comenzar</a>
+                </div>
+                <div class="pricing-card fade-up">
+                    <div class="pricing-plan">Empresarial</div>
+                    <div class="pricing-price" style="font-size:1.9rem;padding-top:0.5rem;letter-spacing:-0.02em;">A la medida</div>
+                    <div class="pricing-price-note">usuarios ilimitados · escala contigo</div>
+                    <div class="pricing-divider"></div>
+                    <ul class="pricing-features">
+                        <li><span class="check">✓</span>Módulos ilimitados y personalizados</li>
+                        <li><span class="check">✓</span>Infraestructura dedicada en la nube</li>
+                        <li><span class="check">✓</span>Analítica avanzada en tiempo real</li>
+                        <li><span class="check">✓</span>Soporte 24/7 con SLA garantizado</li>
+                        <li><span class="check">✓</span>Integraciones ilimitadas con APIs</li>
+                        <li><span class="check">✓</span>Capacitación completa para el equipo</li>
+                        <li><span class="check">✓</span>Consultor técnico asignado</li>
+                        <li><span class="check">✓</span>Roadmap de evolución trimestral</li>
+                    </ul>
+                    <a href="#cta" class="pricing-cta">Cotizar</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DESARROLLO A LA MEDIDA -->
+    <section id="desarrollo">
+        <div class="container">
+            <div class="desarrollo-grid">
+                <div class="desarrollo-intro">
+                    <div class="section-label fade-up">Proyectos</div>
+                    <h2 class="fade-up">Desarrollo<br><em>a la medida</em></h2>
+                    <p class="section-sub fade-up">¿Tu empresa necesita algo completamente único? Construimos sistemas desde cero, adaptados al 100% a tus flujos de trabajo reales.</p>
+                    <div class="desarrollo-tags fade-up">
+                        <span class="desarrollo-tag">Presupuesto fijo</span>
+                        <span class="desarrollo-tag">Entrega en fases</span>
+                        <span class="desarrollo-tag">Sin costos ocultos</span>
+                        <span class="desarrollo-tag">Código propio</span>
+                        <span class="desarrollo-tag">Documentación incluida</span>
+                    </div>
+                </div>
+                <div class="desarrollo-cards">
+                    <div class="proyecto-card fade-up">
+                        <div>
+                            <div class="proyecto-name">Sistema Web Básico</div>
+                            <div class="proyecto-desc">Módulo administrativo con panel de control, gestión de usuarios y reportes exportables.</div>
+                        </div>
+                        <div class="proyecto-meta">
+                            <div class="proyecto-price">desde $2,500</div>
+                            <div class="proyecto-time">4 – 6 semanas</div>
+                        </div>
+                    </div>
+                    <div class="proyecto-card fade-up">
+                        <div>
+                            <div class="proyecto-name">Aplicación Empresarial</div>
+                            <div class="proyecto-desc">Plataforma completa con múltiples módulos, roles de usuario y flujos de trabajo personalizados.</div>
+                        </div>
+                        <div class="proyecto-meta">
+                            <div class="proyecto-price">desde $6,000</div>
+                            <div class="proyecto-time">8 – 12 semanas</div>
+                        </div>
+                    </div>
+                    <div class="proyecto-card fade-up">
+                        <div>
+                            <div class="proyecto-name">ERP / CRM Completo</div>
+                            <div class="proyecto-desc">Sistema integral para gestión de ventas, inventario, recursos humanos y finanzas.</div>
+                        </div>
+                        <div class="proyecto-meta">
+                            <div class="proyecto-price">desde $12,000</div>
+                            <div class="proyecto-time">16 – 24 semanas</div>
+                        </div>
+                    </div>
+                    <div class="proyecto-card fade-up">
+                        <div>
+                            <div class="proyecto-name">Integración y Automatización</div>
+                            <div class="proyecto-desc">Conexión de sistemas existentes, automatización de procesos repetitivos y APIs a la medida.</div>
+                        </div>
+                        <div class="proyecto-meta">
+                            <div class="proyecto-price">desde $3,500</div>
+                            <div class="proyecto-time">4 – 8 semanas</div>
+                        </div>
+                    </div>
+                    <div class="proyecto-card fade-up">
+                        <div>
+                            <div class="proyecto-name">App Móvil Empresarial</div>
+                            <div class="proyecto-desc">Aplicación iOS y Android conectada a tu sistema web, con notificaciones y acceso offline.</div>
+                        </div>
+                        <div class="proyecto-meta">
+                            <div class="proyecto-price">desde $8,000</div>
+                            <div class="proyecto-time">10 – 16 semanas</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA FINAL -->
+    <section id="cta">
+        <div class="cta-glow"></div>
+        <div class="cta-border"></div>
+        <div class="container">
+            <div class="section-label fade-up">¿Listo para empezar?</div>
+            <h2 class="fade-up">Tu empresa merece<br><em>operar en el siglo XXI</em></h2>
+            <p class="section-sub fade-up">
+                Cuéntanos tu proyecto. Analizamos tu situación y te proponemos
+                una solución concreta, sin compromisos.
+            </p>
+            <div class="cta-actions fade-up">
+                <a href="mailto:hola@codia.dev" class="btn-primary">
+                    Iniciar proyecto
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </a>
+                <a href="#" class="btn-ghost">Escribir por WhatsApp</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-inner">
+            <a href="#" class="footer-logo">Co<span>dia</span></a>
+            <p class="footer-text">© 2024 Codia — Desarrollo de software y automatización empresarial en Latinoamérica.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Scroll reveal
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+
+        document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+        // Stagger animations in grid containers
+        const staggerGroups = [
+            '.problem-list .problem-item',
+            '.services-grid .service-card',
+            '.sectors-grid .sector-chip',
+        ];
+        staggerGroups.forEach(selector => {
+            document.querySelectorAll(selector).forEach((el, i) => {
+                el.style.transitionDelay = `${(i % 4) * 0.08}s`;
+            });
+        });
+
+        // Nav border on scroll
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            navbar.style.borderBottomColor = window.scrollY > 40
+                ? 'rgba(255,255,255,0.12)'
+                : 'rgba(255,255,255,0.07)';
+        }, { passive: true });
+    </script>
+</body>
+</html>
