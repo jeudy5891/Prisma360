@@ -1980,7 +1980,7 @@
                 una solución concreta, sin compromisos.
             </p>
             <div class="cta-actions fade-up">
-                <a href="mailto:jeupma@gmail.com" class="btn-primary">
+                <a href="#" class="btn-primary js-email-link" data-email-rev="moc.liamg@ofni.063amsirp">
                     Iniciar proyecto
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </a>
@@ -2013,7 +2013,7 @@
                             </div>
                             <div>
                                 <div class="contacto-info-label">Email</div>
-                                <a href="mailto:jeupma@gmail.com" class="contacto-info-value">jeupma@gmail.com</a>
+                                <a href="#" class="contacto-info-value js-email-link" data-email-rev="moc.liamg@ofni.063amsirp" data-email-text="1">Enviar email</a>
                             </div>
                         </div>
                         <div class="contacto-info-item">
@@ -2116,6 +2116,16 @@
                 ? 'rgba(255,255,255,0.12)'
                 : 'rgba(255,255,255,0.07)';
         }, { passive: true });
+
+        // Email de-obfuscation (assembled at runtime so bots scraping the
+        // raw HTML don't find a plain-text address to harvest for spam)
+        (() => {
+            document.querySelectorAll('[data-email-rev]').forEach(el => {
+                const email = el.dataset.emailRev.split('').reverse().join('');
+                el.href = 'mailto:' + email;
+                if (el.dataset.emailText === '1') el.textContent = email;
+            });
+        })();
 
         // Mobile hamburger menu
         (() => {
