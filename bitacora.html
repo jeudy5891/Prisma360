@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitácora de mantenimiento — Prisma360</title>
+    <link rel="icon" type="image/png" href="assets/logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:            #0A0714;
+            --bg-2:          #100A24;
+            --surface:       #16102C;
+            --surface-2:     #1D1642;
+            --border:        rgba(255,255,255,0.07);
+
+            --accent:        #3DD6FD;
+            --accent-glow:   rgba(61,214,253,0.25);
+            --accent-dim:    rgba(61,214,253,0.10);
+
+            --accent-2:      #5D3DC5;
+            --accent-2-dim:  rgba(93,61,197,0.12);
+
+            --accent-3:      #B7DD47;
+            --accent-3-dim:  rgba(183,221,71,0.12);
+            --danger:        #FF6B6B;
+            --danger-dim:    rgba(255,107,107,0.12);
+
+            --text:          #F3F1FC;
+            --muted:         #9088AE;
+            --subtle:        #362A57;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        a { color: inherit; }
+
+        /* ── Header ── */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border);
+            background: rgba(7,4,18,0.9);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 1.2rem;
+            text-decoration: none;
+        }
+        .header-logo img { height: 30px; }
+        .header-logo span { color: var(--accent); }
+        .header-title { font-size: 0.95rem; color: var(--muted); margin-left: 0.75rem; padding-left: 0.75rem; border-left: 1px solid var(--border); }
+        .header-right { display: flex; align-items: center; gap: 1rem; }
+        #userLabel { font-size: 0.95rem; color: var(--muted); }
+        .btn-logout {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-logout:hover { background: rgba(255,255,255,0.08); }
+
+        /* ── Layout ── */
+        .wrap { max-width: 1600px; margin: 0 auto; padding: 2rem 3rem; }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            border-bottom: 1px solid var(--border);
+        }
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--muted);
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 0.85rem 1.1rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: color 0.2s, border-color 0.2s;
+        }
+        .tab-btn:hover { color: var(--text); }
+        .tab-btn.is-active { color: var(--accent); border-color: var(--accent); }
+
+        .tab-panel { display: none; }
+        .tab-panel.is-active { display: block; }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .panel-header h2 { font-family: 'Montserrat', sans-serif; font-size: 1.5rem; font-weight: 800; }
+
+        .btn-add {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: linear-gradient(120deg, var(--accent) 0%, var(--accent-2) 100%);
+            color: #fff;
+            border: none;
+            padding: 0.65rem 1.2rem;
+            border-radius: 100px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-add:hover { transform: translateY(-2px); box-shadow: 0 8px 24px var(--accent-glow); }
+
+        /* ── Cards (Resumen) ── */
+        .summary-strip {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .summary-tile {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.25rem 1.5rem;
+        }
+        .summary-tile-num {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--accent);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .summary-tile-label { font-size: 0.9rem; color: var(--muted); margin-top: 0.2rem; }
+
+        .client-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem; }
+        .client-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+        .client-card h3 { font-family: 'Montserrat', sans-serif; font-size: 1.2rem; margin-bottom: 0.9rem; }
+        .hours-bar-track { height: 8px; border-radius: 4px; background: rgba(255,255,255,0.06); overflow: hidden; margin: 0.5rem 0; }
+        .hours-bar-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
+        .hours-bar-fill.is-over { background: var(--danger); }
+        .client-card-row { display: flex; justify-content: space-between; font-size: 0.92rem; color: var(--muted); margin-top: 0.4rem; }
+        .client-card-row strong { color: var(--text); }
+        .client-card-total { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.95rem; color: var(--muted); }
+        .client-card-total strong { color: var(--accent-3); font-size: 1.1rem; }
+
+        /* ── Tables ── */
+        .data-table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+        .data-table th, .data-table td { padding: 0.85rem 1.1rem; text-align: left; font-size: 0.95rem; border-bottom: 1px solid var(--border); }
+        .data-table th { color: var(--muted); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; background: rgba(255,255,255,0.02); }
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table td.muted { color: var(--muted); }
+        .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 100px; font-size: 0.8rem; font-weight: 700; }
+        .badge.on { background: var(--accent-3-dim); color: var(--accent-3); }
+        .badge.off { background: var(--danger-dim); color: var(--danger); }
+        .row-actions { display: flex; gap: 0.5rem; }
+        .row-actions button {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            color: var(--muted);
+            border-radius: 6px;
+            padding: 0.35rem 0.7rem;
+            font-size: 0.82rem;
+            cursor: pointer;
+        }
+        .row-actions button:hover { color: var(--text); }
+        .row-actions button.danger:hover { color: var(--danger); border-color: rgba(255,107,107,0.4); }
+        .empty-state { text-align: center; padding: 3rem 1rem; color: var(--muted); font-size: 1rem; }
+
+        .filters { display: flex; gap: 1rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+        .filters select { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 0.6rem 1rem; border-radius: 8px; font-family: inherit; font-size: 0.95rem; }
+
+        /* ── Modal (add/edit forms) ── */
+        .modal-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(5,3,12,0.75);
+            backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 1.5rem;
+        }
+        .modal-overlay.is-open { display: flex; }
+        .modal-card {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 480px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-card h3 { font-family: 'Montserrat', sans-serif; font-size: 1.3rem; margin-bottom: 1.25rem; }
+        .form-group { margin-bottom: 1.1rem; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .form-group label { display: block; font-size: 0.88rem; font-weight: 600; color: var(--muted); margin-bottom: 0.4rem; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.65rem 0.85rem;
+            font-family: inherit;
+            font-size: 0.95rem;
+            color: var(--text);
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: rgba(61,214,253,0.45); }
+        .form-group textarea { resize: vertical; min-height: 80px; }
+        .form-group select option, .filters select option { background: var(--surface-2); color: var(--text); font-size: 0.95rem; }
+        .checkbox-row { display: flex; align-items: center; gap: 0.5rem; }
+        .checkbox-row input { width: auto; }
+        .checkbox-row label { font-size: 0.92rem; }
+        .modal-actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+        .modal-actions button { flex: 1; padding: 0.75rem; border-radius: 8px; font-family: inherit; font-size: 0.95rem; font-weight: 700; cursor: pointer; border: none; }
+        .modal-btn-cancel { background: rgba(255,255,255,0.04); color: var(--text); border: 1px solid var(--border) !important; }
+        .modal-btn-save { background: linear-gradient(120deg, var(--accent), var(--accent-2)); color: #fff; }
+        .modal-error { font-size: 0.88rem; color: var(--danger); margin-top: 0.75rem; display: none; }
+
+        #authGate { display: flex; align-items: center; justify-content: center; min-height: 100vh; color: var(--muted); font-size: 1rem; }
+    </style>
+</head>
+<body>
+    <div id="authGate">Verificando sesión...</div>
+
+    <div id="app" style="display:none;">
+        <header>
+            <div style="display:flex; align-items:center;">
+                <a href="index.html" class="header-logo"><img src="assets/logo.png" alt="Prisma360">Prisma<span>360</span></a>
+                <span class="header-title">Bitácora de mantenimiento</span>
+            </div>
+            <div class="header-right">
+                <span id="userLabel"></span>
+                <button class="btn-logout" id="logoutBtn">Cerrar sesión</button>
+            </div>
+        </header>
+
+        <div class="wrap">
+            <div class="tabs">
+                <button class="tab-btn is-active" data-tab="resumen">Resumen</button>
+                <button class="tab-btn" data-tab="clientes">Clientes</button>
+                <button class="tab-btn" data-tab="mantenimientos">Mantenimientos</button>
+                <button class="tab-btn" data-tab="ingresos">Ingresos</button>
+                <button class="tab-btn" data-tab="gastos">Gastos</button>
+            </div>
+
+            <!-- RESUMEN -->
+            <section class="tab-panel is-active" id="panel-resumen">
+                <div class="summary-strip" id="summaryStrip"></div>
+                <div class="client-cards" id="clientCards"></div>
+            </section>
+
+            <!-- CLIENTES -->
+            <section class="tab-panel" id="panel-clientes">
+                <div class="panel-header">
+                    <h2>Clientes</h2>
+                    <button class="btn-add" onclick="openClienteModal()">+ Nuevo cliente</button>
+                </div>
+                <div id="clientesTableWrap"></div>
+            </section>
+
+            <!-- MANTENIMIENTOS -->
+            <section class="tab-panel" id="panel-mantenimientos">
+                <div class="panel-header">
+                    <h2>Mantenimientos</h2>
+                    <button class="btn-add" onclick="openMantenimientoModal()">+ Nuevo registro</button>
+                </div>
+                <div class="filters">
+                    <select id="filtroClienteMant" onchange="renderMantenimientos()"><option value="">Todos los clientes</option></select>
+                </div>
+                <div id="mantenimientosTableWrap"></div>
+            </section>
+
+            <!-- INGRESOS -->
+            <section class="tab-panel" id="panel-ingresos">
+                <div class="panel-header">
+                    <h2>Ingresos</h2>
+                    <button class="btn-add" onclick="openIngresoModal()">+ Nuevo ingreso</button>
+                </div>
+                <div class="filters">
+                    <select id="filtroClienteIngreso" onchange="renderIngresos()"><option value="">Todos los clientes</option></select>
+                    <select id="filtroIvaIngreso" onchange="renderIngresos()">
+                        <option value="">IVA: todos</option>
+                        <option value="pendiente">IVA pendiente</option>
+                        <option value="declarado">IVA declarado</option>
+                    </select>
+                </div>
+                <div id="ingresosTableWrap"></div>
+            </section>
+
+            <!-- GASTOS -->
+            <section class="tab-panel" id="panel-gastos">
+                <div class="panel-header">
+                    <h2>Gastos</h2>
+                    <button class="btn-add" onclick="openGastoModal()">+ Nuevo gasto</button>
+                </div>
+                <div class="filters">
+                    <select id="filtroCategoriaGasto" onchange="renderGastos()">
+                        <option value="">Todas las categorías</option>
+                        <option value="Dominio y hosting">Dominio y hosting</option>
+                        <option value="Suscripciones y software">Suscripciones y software</option>
+                        <option value="Contratación de personal">Contratación de personal</option>
+                        <option value="Marketing y publicidad">Marketing y publicidad</option>
+                        <option value="Equipo y hardware">Equipo y hardware</option>
+                        <option value="Servicios profesionales">Servicios profesionales</option>
+                        <option value="Otro">Otro</option>
+                    </select>
+                </div>
+                <div id="gastosTableWrap"></div>
+            </section>
+        </div>
+    </div>
+
+    <!-- MODAL: Cliente -->
+    <div class="modal-overlay" id="modalCliente">
+        <div class="modal-card">
+            <h3 id="modalClienteTitle">Nuevo cliente</h3>
+            <form id="formCliente">
+                <input type="hidden" id="clienteId">
+                <div class="form-group"><label>Nombre</label><input type="text" id="clienteNombre" required></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Contacto</label><input type="text" id="clienteContactoNombre"></div>
+                    <div class="form-group"><label>Email</label><input type="email" id="clienteContactoEmail"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Teléfono</label><input type="text" id="clienteContactoTelefono"></div>
+                    <div class="form-group"><label>Sitio web</label><input type="text" id="clienteSitioWeb"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Horas incluidas / mes</label><input type="number" step="0.5" id="clienteHoras" value="4" required></div>
+                    <div class="form-group"><label>Tarifa (₡/$)</label><input type="number" step="0.01" id="clienteTarifa"></div>
+                </div>
+                <div class="form-group">
+                    <label>Frecuencia de pago</label>
+                    <select id="clienteFrecuencia">
+                        <option value="mensual">Mensual</option>
+                        <option value="trimestral">Trimestral</option>
+                        <option value="semestral">Semestral</option>
+                        <option value="anual">Anual</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Notas</label><textarea id="clienteNotas"></textarea></div>
+                <div class="checkbox-row"><input type="checkbox" id="clienteActivo" checked><label for="clienteActivo" style="margin:0;">Cliente activo</label></div>
+                <p class="modal-error" id="clienteError"></p>
+                <div class="modal-actions">
+                    <button type="button" class="modal-btn-cancel" onclick="closeModal('modalCliente')">Cancelar</button>
+                    <button type="submit" class="modal-btn-save">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: Mantenimiento -->
+    <div class="modal-overlay" id="modalMantenimiento">
+        <div class="modal-card">
+            <h3>Nuevo registro de mantenimiento</h3>
+            <form id="formMantenimiento">
+                <div class="form-group">
+                    <label>Cliente</label>
+                    <select id="mantCliente" required></select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Fecha</label><input type="date" id="mantFecha" required></div>
+                    <div class="form-group"><label>Horas consumidas</label><input type="number" step="0.25" id="mantHoras" required></div>
+                </div>
+                <div class="form-group"><label>Descripción</label><textarea id="mantDescripcion" required></textarea></div>
+                <p class="modal-error" id="mantError"></p>
+                <div class="modal-actions">
+                    <button type="button" class="modal-btn-cancel" onclick="closeModal('modalMantenimiento')">Cancelar</button>
+                    <button type="submit" class="modal-btn-save">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: Ingreso -->
+    <div class="modal-overlay" id="modalIngreso">
+        <div class="modal-card">
+            <h3 id="modalIngresoTitle">Nuevo ingreso</h3>
+            <form id="formIngreso">
+                <input type="hidden" id="ingresoId">
+                <div class="form-group">
+                    <label>Cliente</label>
+                    <select id="ingresoCliente" required></select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Concepto</label>
+                        <select id="ingresoConcepto">
+                            <option value="Mantenimiento">Mantenimiento</option>
+                            <option value="Desarrollo de sitio web">Desarrollo de sitio web</option>
+                            <option value="Desarrollo de sistema">Desarrollo de sistema</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Fecha de pago</label><input type="date" id="ingresoFecha" required></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Monto</label><input type="number" step="0.01" id="ingresoMonto" required></div>
+                    <div class="form-group"><label>Monto IVA (13%)</label><input type="number" step="0.01" id="ingresoIva"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Periodo que cubre</label><input type="text" id="ingresoPeriodo" placeholder="ej. Agosto 2026"></div>
+                    <div class="form-group">
+                        <label>Método</label>
+                        <select id="ingresoMetodo">
+                            <option value="SINPE">SINPE Móvil</option>
+                            <option value="Transferencia">Transferencia</option>
+                            <option value="Efectivo">Efectivo</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group"><label>Notas</label><textarea id="ingresoNotas"></textarea></div>
+                <div class="checkbox-row" style="margin-bottom:1.1rem;">
+                    <input type="checkbox" id="ingresoIvaDeclarado">
+                    <label for="ingresoIvaDeclarado" style="margin:0;">IVA ya declarado en TRIBU</label>
+                </div>
+                <div class="form-group" id="ingresoFechaDeclaracionWrap" style="display:none;">
+                    <label>Fecha de declaración</label>
+                    <input type="date" id="ingresoFechaDeclaracion">
+                </div>
+                <div class="form-group">
+                    <label>Adjuntar factura (PDF o imagen)</label>
+                    <input type="file" id="ingresoFactura" accept=".pdf,.jpg,.jpeg,.png,.webp">
+                    <p class="modal-error" id="ingresoFacturaActual" style="display:none; color: var(--muted);"></p>
+                </div>
+                <p class="modal-error" id="ingresoError"></p>
+                <div class="modal-actions">
+                    <button type="button" class="modal-btn-cancel" onclick="closeModal('modalIngreso')">Cancelar</button>
+                    <button type="submit" class="modal-btn-save" id="ingresoSaveBtn">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: Gasto -->
+    <div class="modal-overlay" id="modalGasto">
+        <div class="modal-card">
+            <h3>Nuevo gasto</h3>
+            <form id="formGasto">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Categoría</label>
+                        <select id="gastoCategoria">
+                            <option value="Dominio y hosting">Dominio y hosting</option>
+                            <option value="Suscripciones y software">Suscripciones y software</option>
+                            <option value="Contratación de personal">Contratación de personal</option>
+                            <option value="Marketing y publicidad">Marketing y publicidad</option>
+                            <option value="Equipo y hardware">Equipo y hardware</option>
+                            <option value="Servicios profesionales">Servicios profesionales</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Fecha</label><input type="date" id="gastoFecha" required></div>
+                </div>
+                <div class="form-group"><label>Descripción</label><input type="text" id="gastoDescripcion" placeholder="ej. Renovación dominio prisma360.co.cr" required></div>
+                <div class="form-group"><label>Monto</label><input type="number" step="0.01" id="gastoMonto" required></div>
+                <div class="form-group"><label>Notas</label><textarea id="gastoNotas"></textarea></div>
+                <div class="form-group">
+                    <label>Adjuntar comprobante (PDF o imagen)</label>
+                    <input type="file" id="gastoComprobante" accept=".pdf,.jpg,.jpeg,.png,.webp">
+                </div>
+                <p class="modal-error" id="gastoError"></p>
+                <div class="modal-actions">
+                    <button type="button" class="modal-btn-cancel" onclick="closeModal('modalGasto')">Cancelar</button>
+                    <button type="submit" class="modal-btn-save" id="gastoSaveBtn">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/supabase-config.js"></script>
+    <script>
+        let supabaseClient = null;
+        let currentUser = null;
+        let clientesCache = [];
+        let mantenimientosCache = [];
+        let ingresosCache = [];
+        let gastosCache = [];
+        const ADJUNTOS_BUCKET = 'adjuntos';
+
+        // ── Auth gate ──
+        (async () => {
+            if (SUPABASE_URL.startsWith('PENDIENTE_')) {
+                document.getElementById('authGate').textContent = 'Configuración pendiente: falta conectar las credenciales de Supabase.';
+                return;
+            }
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+            const { data } = await supabaseClient.auth.getSession();
+            if (!data.session) { window.location.href = 'login.html'; return; }
+            currentUser = data.session.user;
+
+            const { data: perfil } = await supabaseClient.from('perfiles').select('nombre').eq('id', currentUser.id).single();
+            document.getElementById('userLabel').textContent = perfil ? perfil.nombre : currentUser.email;
+
+            document.getElementById('authGate').style.display = 'none';
+            document.getElementById('app').style.display = 'block';
+
+            await loadAll();
+        })();
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await supabaseClient.auth.signOut();
+            window.location.href = 'login.html';
+        });
+
+        // ── Tabs ──
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('is-active'));
+                document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('is-active'));
+                btn.classList.add('is-active');
+                document.getElementById('panel-' + btn.dataset.tab).classList.add('is-active');
+            });
+        });
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('is-open');
+        }
+        function openModal(id) {
+            document.getElementById(id).classList.add('is-open');
+        }
+
+        // ── Data loading ──
+        async function loadAll() {
+            const [{ data: clientes }, { data: mantenimientos }, { data: ingresos }, { data: gastos }] = await Promise.all([
+                supabaseClient.from('clientes').select('*').order('nombre'),
+                supabaseClient.from('mantenimientos').select('*, clientes(nombre)').order('fecha', { ascending: false }),
+                supabaseClient.from('ingresos').select('*, clientes(nombre)').order('fecha_pago', { ascending: false }),
+                supabaseClient.from('gastos').select('*').order('fecha', { ascending: false }),
+            ]);
+            clientesCache = clientes || [];
+            mantenimientosCache = mantenimientos || [];
+            ingresosCache = ingresos || [];
+            gastosCache = gastos || [];
+
+            populateClienteSelects();
+            renderResumen();
+            renderClientes();
+            renderMantenimientos();
+            renderIngresos();
+            renderGastos();
+        }
+
+        function populateClienteSelects() {
+            const opts = clientesCache.map(c => `<option value="${c.id}">${escapeHtml(c.nombre)}</option>`).join('');
+            document.getElementById('mantCliente').innerHTML = opts;
+            document.getElementById('ingresoCliente').innerHTML = opts;
+            document.getElementById('filtroClienteMant').innerHTML = '<option value="">Todos los clientes</option>' + opts;
+            document.getElementById('filtroClienteIngreso').innerHTML = '<option value="">Todos los clientes</option>' + opts;
+        }
+
+        // Returns a short-lived signed URL to view a private file in the "adjuntos" bucket
+        async function abrirAdjunto(path) {
+            const { data, error } = await supabaseClient.storage.from(ADJUNTOS_BUCKET).createSignedUrl(path, 3600);
+            if (error) { alert('No se pudo abrir el adjunto: ' + error.message); return; }
+            window.open(data.signedUrl, '_blank');
+        }
+
+        async function subirAdjunto(file, carpeta) {
+            const ext = file.name.split('.').pop();
+            const path = `${carpeta}/${crypto.randomUUID()}.${ext}`;
+            const { error } = await supabaseClient.storage.from(ADJUNTOS_BUCKET).upload(path, file);
+            if (error) throw error;
+            return path;
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str == null ? '' : str;
+            return div.innerHTML;
+        }
+
+        function isSameMonth(dateStr) {
+            const d = new Date(dateStr + 'T00:00:00');
+            const now = new Date();
+            return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+        }
+
+        // ── RESUMEN ──
+        function renderResumen() {
+            const activos = clientesCache.filter(c => c.activo);
+            const horasEsteMes = mantenimientosCache.filter(m => isSameMonth(m.fecha)).reduce((s, m) => s + Number(m.horas_consumidas), 0);
+            const totalRecaudado = ingresosCache.reduce((s, p) => s + Number(p.monto), 0);
+            const ivaPendiente = ingresosCache.filter(p => !p.iva_declarado).reduce((s, p) => s + Number(p.monto_iva || 0), 0);
+            const totalGastos = gastosCache.reduce((s, g) => s + Number(g.monto), 0);
+            const balanceNeto = totalRecaudado - totalGastos;
+
+            document.getElementById('summaryStrip').innerHTML = `
+                <div class="summary-tile"><div class="summary-tile-num">${activos.length}</div><div class="summary-tile-label">Clientes activos</div></div>
+                <div class="summary-tile"><div class="summary-tile-num">${horasEsteMes.toFixed(1)}</div><div class="summary-tile-label">Horas trabajadas este mes</div></div>
+                <div class="summary-tile"><div class="summary-tile-num">₡${totalRecaudado.toLocaleString('es-CR')}</div><div class="summary-tile-label">Total ingresos</div></div>
+                <div class="summary-tile"><div class="summary-tile-num">₡${totalGastos.toLocaleString('es-CR')}</div><div class="summary-tile-label">Total gastos</div></div>
+                <div class="summary-tile"><div class="summary-tile-num" style="${balanceNeto < 0 ? 'color:var(--danger)' : 'color:var(--accent-3)'}">₡${balanceNeto.toLocaleString('es-CR')}</div><div class="summary-tile-label">Balance neto</div></div>
+                <div class="summary-tile"><div class="summary-tile-num" style="${ivaPendiente > 0 ? 'color:var(--danger)' : ''}">₡${ivaPendiente.toLocaleString('es-CR')}</div><div class="summary-tile-label">IVA pendiente de declarar (TRIBU)</div></div>
+            `;
+
+            const cardsHtml = activos.map(c => {
+                const consumidas = mantenimientosCache
+                    .filter(m => m.cliente_id === c.id && isSameMonth(m.fecha))
+                    .reduce((s, m) => s + Number(m.horas_consumidas), 0);
+                const incluidas = Number(c.horas_incluidas_mensuales);
+                const restantes = incluidas - consumidas;
+                const pct = incluidas > 0 ? Math.min((consumidas / incluidas) * 100, 100) : 0;
+                const over = consumidas > incluidas;
+                const totalPagadoCliente = ingresosCache.filter(p => p.cliente_id === c.id).reduce((s, p) => s + Number(p.monto), 0);
+
+                return `
+                    <div class="client-card">
+                        <h3>${escapeHtml(c.nombre)}</h3>
+                        <div class="hours-bar-track"><div class="hours-bar-fill ${over ? 'is-over' : ''}" style="width:${pct}%"></div></div>
+                        <div class="client-card-row"><span>Horas usadas / mes</span><strong>${consumidas.toFixed(1)} / ${incluidas}</strong></div>
+                        <div class="client-card-row"><span>Restantes</span><strong style="${restantes < 0 ? 'color:var(--danger)' : ''}">${restantes.toFixed(1)}</strong></div>
+                        <div class="client-card-total">Total recaudado <strong>₡${totalPagadoCliente.toLocaleString('es-CR')}</strong></div>
+                    </div>
+                `;
+            }).join('');
+            document.getElementById('clientCards').innerHTML = cardsHtml || '<p class="empty-state">Aún no hay clientes activos registrados.</p>';
+        }
+
+        // ── CLIENTES ──
+        function renderClientes() {
+            if (!clientesCache.length) {
+                document.getElementById('clientesTableWrap').innerHTML = '<p class="empty-state">No hay clientes registrados todavía.</p>';
+                return;
+            }
+            const rows = clientesCache.map(c => `
+                <tr>
+                    <td>${escapeHtml(c.nombre)}</td>
+                    <td class="muted">${escapeHtml(c.contacto_email || c.contacto_nombre || '—')}</td>
+                    <td>${c.horas_incluidas_mensuales} h</td>
+                    <td class="muted">${c.frecuencia_pago}</td>
+                    <td><span class="badge ${c.activo ? 'on' : 'off'}">${c.activo ? 'Activo' : 'Inactivo'}</span></td>
+                    <td>
+                        <div class="row-actions">
+                            <button onclick="openClienteModal('${c.id}')">Editar</button>
+                            <button class="danger" onclick="deleteCliente('${c.id}')">Eliminar</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+            document.getElementById('clientesTableWrap').innerHTML = `
+                <table class="data-table">
+                    <thead><tr><th>Nombre</th><th>Contacto</th><th>Horas/mes</th><th>Frecuencia</th><th>Estado</th><th></th></tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            `;
+        }
+
+        function openClienteModal(id) {
+            const form = document.getElementById('formCliente');
+            form.reset();
+            document.getElementById('clienteError').style.display = 'none';
+            document.getElementById('clienteId').value = id || '';
+            document.getElementById('modalClienteTitle').textContent = id ? 'Editar cliente' : 'Nuevo cliente';
+            if (id) {
+                const c = clientesCache.find(x => x.id === id);
+                document.getElementById('clienteNombre').value = c.nombre || '';
+                document.getElementById('clienteContactoNombre').value = c.contacto_nombre || '';
+                document.getElementById('clienteContactoEmail').value = c.contacto_email || '';
+                document.getElementById('clienteContactoTelefono').value = c.contacto_telefono || '';
+                document.getElementById('clienteSitioWeb').value = c.sitio_web || '';
+                document.getElementById('clienteHoras').value = c.horas_incluidas_mensuales;
+                document.getElementById('clienteTarifa').value = c.tarifa || '';
+                document.getElementById('clienteFrecuencia').value = c.frecuencia_pago;
+                document.getElementById('clienteNotas').value = c.notas || '';
+                document.getElementById('clienteActivo').checked = c.activo;
+            } else {
+                document.getElementById('clienteHoras').value = 4;
+                document.getElementById('clienteActivo').checked = true;
+            }
+            openModal('modalCliente');
+        }
+
+        document.getElementById('formCliente').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('clienteId').value;
+            const payload = {
+                nombre: document.getElementById('clienteNombre').value.trim(),
+                contacto_nombre: document.getElementById('clienteContactoNombre').value.trim() || null,
+                contacto_email: document.getElementById('clienteContactoEmail').value.trim() || null,
+                contacto_telefono: document.getElementById('clienteContactoTelefono').value.trim() || null,
+                sitio_web: document.getElementById('clienteSitioWeb').value.trim() || null,
+                horas_incluidas_mensuales: Number(document.getElementById('clienteHoras').value),
+                tarifa: document.getElementById('clienteTarifa').value ? Number(document.getElementById('clienteTarifa').value) : null,
+                frecuencia_pago: document.getElementById('clienteFrecuencia').value,
+                notas: document.getElementById('clienteNotas').value.trim() || null,
+                activo: document.getElementById('clienteActivo').checked,
+            };
+            const query = id
+                ? supabaseClient.from('clientes').update(payload).eq('id', id)
+                : supabaseClient.from('clientes').insert([payload]);
+            const { error } = await query;
+            if (error) {
+                const errEl = document.getElementById('clienteError');
+                errEl.textContent = error.message;
+                errEl.style.display = 'block';
+                return;
+            }
+            closeModal('modalCliente');
+            await loadAll();
+        });
+
+        async function deleteCliente(id) {
+            if (!confirm('¿Eliminar este cliente? También se eliminarán sus registros de mantenimiento e ingresos asociados.')) return;
+            const { error } = await supabaseClient.from('clientes').delete().eq('id', id);
+            if (error) { alert(error.message); return; }
+            await loadAll();
+        }
+
+        // ── MANTENIMIENTOS ──
+        function renderMantenimientos() {
+            const filtro = document.getElementById('filtroClienteMant').value;
+            const rows = mantenimientosCache
+                .filter(m => !filtro || m.cliente_id === filtro)
+                .map(m => `
+                    <tr>
+                        <td class="muted">${m.fecha}</td>
+                        <td>${escapeHtml(m.clientes ? m.clientes.nombre : '—')}</td>
+                        <td>${escapeHtml(m.descripcion)}</td>
+                        <td>${Number(m.horas_consumidas).toFixed(2)} h</td>
+                        <td>
+                            <div class="row-actions">
+                                <button class="danger" onclick="deleteMantenimiento('${m.id}')">Eliminar</button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            document.getElementById('mantenimientosTableWrap').innerHTML = rows
+                ? `<table class="data-table"><thead><tr><th>Fecha</th><th>Cliente</th><th>Descripción</th><th>Horas</th><th></th></tr></thead><tbody>${rows}</tbody></table>`
+                : '<p class="empty-state">No hay registros de mantenimiento todavía.</p>';
+        }
+
+        function openMantenimientoModal() {
+            if (!clientesCache.length) { alert('Registra al menos un cliente primero.'); return; }
+            document.getElementById('formMantenimiento').reset();
+            document.getElementById('mantError').style.display = 'none';
+            document.getElementById('mantFecha').value = new Date().toISOString().slice(0, 10);
+            openModal('modalMantenimiento');
+        }
+
+        document.getElementById('formMantenimiento').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                cliente_id: document.getElementById('mantCliente').value,
+                usuario_id: currentUser.id,
+                fecha: document.getElementById('mantFecha').value,
+                descripcion: document.getElementById('mantDescripcion').value.trim(),
+                horas_consumidas: Number(document.getElementById('mantHoras').value),
+            };
+            const { error } = await supabaseClient.from('mantenimientos').insert([payload]);
+            if (error) {
+                const errEl = document.getElementById('mantError');
+                errEl.textContent = error.message;
+                errEl.style.display = 'block';
+                return;
+            }
+            closeModal('modalMantenimiento');
+            await loadAll();
+        });
+
+        async function deleteMantenimiento(id) {
+            if (!confirm('¿Eliminar este registro de mantenimiento?')) return;
+            const { error } = await supabaseClient.from('mantenimientos').delete().eq('id', id);
+            if (error) { alert(error.message); return; }
+            await loadAll();
+        }
+
+        // ── INGRESOS ──
+        function renderIngresos() {
+            const filtroCliente = document.getElementById('filtroClienteIngreso').value;
+            const filtroIva = document.getElementById('filtroIvaIngreso').value;
+            const rows = ingresosCache
+                .filter(p => !filtroCliente || p.cliente_id === filtroCliente)
+                .filter(p => !filtroIva || (filtroIva === 'pendiente' ? !p.iva_declarado : p.iva_declarado))
+                .map(p => `
+                    <tr>
+                        <td class="muted">${p.fecha_pago}</td>
+                        <td>${escapeHtml(p.clientes ? p.clientes.nombre : '—')}</td>
+                        <td class="muted">${escapeHtml(p.concepto || '—')}</td>
+                        <td>₡${Number(p.monto).toLocaleString('es-CR')}</td>
+                        <td class="muted">₡${Number(p.monto_iva || 0).toLocaleString('es-CR')}</td>
+                        <td><span class="badge ${p.iva_declarado ? 'on' : 'off'}">${p.iva_declarado ? 'Declarado' : 'Pendiente'}</span></td>
+                        <td>
+                            <div class="row-actions">
+                                ${p.factura_url ? `<button onclick="abrirAdjunto('${p.factura_url}')">Ver factura</button>` : ''}
+                                <button onclick="toggleIvaDeclarado('${p.id}', ${!p.iva_declarado})">${p.iva_declarado ? 'Marcar pendiente' : 'Marcar declarado'}</button>
+                                <button class="danger" onclick="deleteIngreso('${p.id}')">Eliminar</button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            document.getElementById('ingresosTableWrap').innerHTML = rows
+                ? `<table class="data-table"><thead><tr><th>Fecha</th><th>Cliente</th><th>Concepto</th><th>Monto</th><th>IVA</th><th>Estado IVA</th><th></th></tr></thead><tbody>${rows}</tbody></table>`
+                : '<p class="empty-state">No hay ingresos registrados todavía.</p>';
+        }
+
+        function openIngresoModal() {
+            if (!clientesCache.length) { alert('Registra al menos un cliente primero.'); return; }
+            document.getElementById('formIngreso').reset();
+            document.getElementById('ingresoId').value = '';
+            document.getElementById('ingresoError').style.display = 'none';
+            document.getElementById('ingresoFacturaActual').style.display = 'none';
+            document.getElementById('ingresoFecha').value = new Date().toISOString().slice(0, 10);
+            document.getElementById('ingresoFechaDeclaracionWrap').style.display = 'none';
+            openModal('modalIngreso');
+        }
+
+        document.getElementById('ingresoMonto').addEventListener('input', (e) => {
+            const monto = Number(e.target.value) || 0;
+            document.getElementById('ingresoIva').value = (monto * 0.13).toFixed(2);
+        });
+
+        document.getElementById('ingresoIvaDeclarado').addEventListener('change', (e) => {
+            const wrap = document.getElementById('ingresoFechaDeclaracionWrap');
+            wrap.style.display = e.target.checked ? 'block' : 'none';
+            if (e.target.checked && !document.getElementById('ingresoFechaDeclaracion').value) {
+                document.getElementById('ingresoFechaDeclaracion').value = new Date().toISOString().slice(0, 10);
+            }
+        });
+
+        document.getElementById('formIngreso').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const errEl = document.getElementById('ingresoError');
+            errEl.style.display = 'none';
+            const saveBtn = document.getElementById('ingresoSaveBtn');
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Guardando...';
+
+            try {
+                const ivaDeclarado = document.getElementById('ingresoIvaDeclarado').checked;
+                const payload = {
+                    cliente_id: document.getElementById('ingresoCliente').value,
+                    concepto: document.getElementById('ingresoConcepto').value,
+                    fecha_pago: document.getElementById('ingresoFecha').value,
+                    monto: Number(document.getElementById('ingresoMonto').value),
+                    monto_iva: Number(document.getElementById('ingresoIva').value) || 0,
+                    iva_declarado: ivaDeclarado,
+                    fecha_declaracion_iva: ivaDeclarado ? (document.getElementById('ingresoFechaDeclaracion').value || null) : null,
+                    periodo_cubierto: document.getElementById('ingresoPeriodo').value.trim() || null,
+                    metodo: document.getElementById('ingresoMetodo').value,
+                    notas: document.getElementById('ingresoNotas').value.trim() || null,
+                };
+
+                const fileInput = document.getElementById('ingresoFactura');
+                if (fileInput.files[0]) {
+                    payload.factura_url = await subirAdjunto(fileInput.files[0], 'ingresos');
+                }
+
+                const { error } = await supabaseClient.from('ingresos').insert([payload]);
+                if (error) throw error;
+
+                closeModal('modalIngreso');
+                await loadAll();
+            } catch (error) {
+                errEl.textContent = error.message;
+                errEl.style.display = 'block';
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Guardar';
+            }
+        });
+
+        async function toggleIvaDeclarado(id, nuevoEstado) {
+            const payload = {
+                iva_declarado: nuevoEstado,
+                fecha_declaracion_iva: nuevoEstado ? new Date().toISOString().slice(0, 10) : null,
+            };
+            const { error } = await supabaseClient.from('ingresos').update(payload).eq('id', id);
+            if (error) { alert(error.message); return; }
+            await loadAll();
+        }
+
+        async function deleteIngreso(id) {
+            if (!confirm('¿Eliminar este ingreso?')) return;
+            const { error } = await supabaseClient.from('ingresos').delete().eq('id', id);
+            if (error) { alert(error.message); return; }
+            await loadAll();
+        }
+
+        // ── GASTOS ──
+        function renderGastos() {
+            const filtro = document.getElementById('filtroCategoriaGasto').value;
+            const rows = gastosCache
+                .filter(g => !filtro || g.categoria === filtro)
+                .map(g => `
+                    <tr>
+                        <td class="muted">${g.fecha}</td>
+                        <td>${escapeHtml(g.categoria)}</td>
+                        <td>${escapeHtml(g.descripcion)}</td>
+                        <td>₡${Number(g.monto).toLocaleString('es-CR')}</td>
+                        <td>
+                            <div class="row-actions">
+                                ${g.comprobante_url ? `<button onclick="abrirAdjunto('${g.comprobante_url}')">Ver comprobante</button>` : ''}
+                                <button class="danger" onclick="deleteGasto('${g.id}')">Eliminar</button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            document.getElementById('gastosTableWrap').innerHTML = rows
+                ? `<table class="data-table"><thead><tr><th>Fecha</th><th>Categoría</th><th>Descripción</th><th>Monto</th><th></th></tr></thead><tbody>${rows}</tbody></table>`
+                : '<p class="empty-state">No hay gastos registrados todavía.</p>';
+        }
+
+        function openGastoModal() {
+            document.getElementById('formGasto').reset();
+            document.getElementById('gastoError').style.display = 'none';
+            document.getElementById('gastoFecha').value = new Date().toISOString().slice(0, 10);
+            openModal('modalGasto');
+        }
+
+        document.getElementById('formGasto').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const errEl = document.getElementById('gastoError');
+            errEl.style.display = 'none';
+            const saveBtn = document.getElementById('gastoSaveBtn');
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Guardando...';
+
+            try {
+                const payload = {
+                    categoria: document.getElementById('gastoCategoria').value,
+                    fecha: document.getElementById('gastoFecha').value,
+                    descripcion: document.getElementById('gastoDescripcion').value.trim(),
+                    monto: Number(document.getElementById('gastoMonto').value),
+                    notas: document.getElementById('gastoNotas').value.trim() || null,
+                };
+
+                const fileInput = document.getElementById('gastoComprobante');
+                if (fileInput.files[0]) {
+                    payload.comprobante_url = await subirAdjunto(fileInput.files[0], 'gastos');
+                }
+
+                const { error } = await supabaseClient.from('gastos').insert([payload]);
+                if (error) throw error;
+
+                closeModal('modalGasto');
+                await loadAll();
+            } catch (error) {
+                errEl.textContent = error.message;
+                errEl.style.display = 'block';
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Guardar';
+            }
+        });
+
+        async function deleteGasto(id) {
+            if (!confirm('¿Eliminar este gasto?')) return;
+            const { error } = await supabaseClient.from('gastos').delete().eq('id', id);
+            if (error) { alert(error.message); return; }
+            await loadAll();
+        }
+    </script>
+</body>
+</html>
