@@ -208,15 +208,15 @@
             border: 1px solid var(--border);
             border-radius: 14px;
             padding: 1.25rem 1.5rem;
+            min-width: 0;
         }
         .summary-tile-num {
             font-family: 'Montserrat', sans-serif;
             font-weight: 700;
             font-size: 1.5rem;
             color: var(--accent);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            overflow-wrap: break-word;
+            line-height: 1.15;
         }
         .summary-tile-label { font-size: 0.9rem; color: var(--muted); margin-top: 0.2rem; }
 
@@ -226,6 +226,7 @@
             border: 1px solid var(--border);
             border-radius: 16px;
             padding: 1.5rem;
+            min-width: 0;
         }
         .client-card h3 { font-family: 'Montserrat', sans-serif; font-size: 1.2rem; margin-bottom: 0.9rem; }
         .hours-bar-track { height: 8px; border-radius: 4px; background: rgba(255,255,255,0.06); overflow: hidden; margin: 0.5rem 0; }
@@ -335,6 +336,8 @@
             .tabs { gap: 0.15rem; }
             .tab-btn { padding: 0.7rem 0.6rem; font-size: 0.9rem; }
             .summary-strip { grid-template-columns: 1fr 1fr; }
+            .summary-tile { padding: 1rem 1.1rem; }
+            .summary-tile-num { font-size: 1.3rem; }
             .btn-add { width: 100%; justify-content: center; }
             .panel-header { flex-direction: column; align-items: stretch; }
         }
@@ -795,10 +798,10 @@
             document.getElementById('summaryStrip').innerHTML = `
                 <div class="summary-tile"><div class="summary-tile-num">${activos.length}</div><div class="summary-tile-label">Clientes activos</div></div>
                 <div class="summary-tile"><div class="summary-tile-num">${horasEsteMes.toFixed(1)}</div><div class="summary-tile-label">Horas trabajadas este mes</div></div>
-                <div class="summary-tile"><div class="summary-tile-num">₡${totalRecaudado.toLocaleString('es-CR')}</div><div class="summary-tile-label">Total ingresos</div></div>
-                <div class="summary-tile"><div class="summary-tile-num">₡${totalGastos.toLocaleString('es-CR')}</div><div class="summary-tile-label">Total gastos</div></div>
-                <div class="summary-tile"><div class="summary-tile-num" style="${balanceNeto < 0 ? 'color:var(--danger)' : 'color:var(--accent-3)'}">₡${balanceNeto.toLocaleString('es-CR')}</div><div class="summary-tile-label">Balance neto</div></div>
-                <div class="summary-tile"><div class="summary-tile-num" style="${ivaPendiente > 0 ? 'color:var(--danger)' : ''}">₡${ivaPendiente.toLocaleString('es-CR')}</div><div class="summary-tile-label">IVA pendiente de declarar (TRIBU)</div></div>
+                <div class="summary-tile"><div class="summary-tile-num">₡${Math.round(totalRecaudado).toLocaleString('es-CR')}</div><div class="summary-tile-label">Total ingresos</div></div>
+                <div class="summary-tile"><div class="summary-tile-num">₡${Math.round(totalGastos).toLocaleString('es-CR')}</div><div class="summary-tile-label">Total gastos</div></div>
+                <div class="summary-tile"><div class="summary-tile-num" style="${balanceNeto < 0 ? 'color:var(--danger)' : 'color:var(--accent-3)'}">₡${Math.round(balanceNeto).toLocaleString('es-CR')}</div><div class="summary-tile-label">Balance neto</div></div>
+                <div class="summary-tile"><div class="summary-tile-num" style="${ivaPendiente > 0 ? 'color:var(--danger)' : ''}">₡${Math.round(ivaPendiente).toLocaleString('es-CR')}</div><div class="summary-tile-label">IVA pendiente de declarar (TRIBU)</div></div>
             `;
 
             const cardsHtml = activos.map(c => {
