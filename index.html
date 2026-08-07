@@ -91,6 +91,8 @@
             transition: color 0.2s;
         }
         .nav-links a:hover { color: var(--text); }
+        .nav-links li.nav-mobile-only { display: none; }
+        .nav-links a.nav-link-cta { color: var(--accent); font-weight: 700; }
 
         .nav-cta {
             background: var(--accent);
@@ -103,6 +105,12 @@
             transition: opacity 0.2s, transform 0.2s;
         }
         .nav-cta:hover { opacity: 0.88; transform: translateY(-1px); }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+        }
 
         .nav-burger {
             display: none;
@@ -1333,6 +1341,7 @@
         @media (max-width: 900px) {
             .nav-burger { display: flex; }
             .nav-cta { display: none; }
+            .nav-links li.nav-mobile-only { display: block; }
             .nav-links {
                 position: fixed;
                 top: 73px;
@@ -1404,11 +1413,14 @@
             <li><a href="#productos">Productos</a></li>
             <li><a href="#nosotros">Nosotros</a></li>
             <li><a href="#contacto">Contacto</a></li>
+            <li class="nav-mobile-only"><a href="login.html" class="nav-link-cta">Ingresar</a></li>
         </ul>
-        <a href="login.html" class="nav-cta">Ingresar</a>
-        <button type="button" class="nav-burger" id="navBurger" aria-label="Abrir menú" aria-expanded="false">
-            <span></span><span></span><span></span>
-        </button>
+        <div class="nav-actions">
+            <a href="login.html" class="nav-cta">Ingresar</a>
+            <button type="button" class="nav-burger" id="navBurger" aria-label="Abrir menú" aria-expanded="false">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
     </nav>
 
     <!-- HERO -->

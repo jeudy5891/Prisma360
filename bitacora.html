@@ -85,6 +85,63 @@
         }
         .btn-logout:hover { background: rgba(255,255,255,0.08); }
 
+        .nav-burger {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            width: 40px; height: 40px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+        }
+        .nav-burger span {
+            display: block;
+            width: 22px; height: 2px;
+            background: var(--text);
+            border-radius: 2px;
+            transition: transform 0.3s ease, opacity 0.2s ease;
+        }
+        .nav-burger.is-active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .nav-burger.is-active span:nth-child(2) { opacity: 0; }
+        .nav-burger.is-active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+        .mobile-tabs-menu {
+            display: none;
+            position: fixed;
+            top: 65px;
+            left: 0; right: 0;
+            flex-direction: column;
+            background: rgba(7,4,18,0.98);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: max-height 0.35s ease, opacity 0.25s ease;
+            z-index: 60;
+        }
+        .mobile-tabs-menu.is-open { max-height: 500px; opacity: 1; }
+        .mobile-tab-link {
+            display: block;
+            width: 100%;
+            text-align: left;
+            background: none;
+            border: none;
+            border-bottom: 1px solid var(--border);
+            color: var(--muted);
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+        }
+        .mobile-tab-link.is-active { color: var(--accent); }
+        .mobile-tabs-divider { height: 0.5rem; background: rgba(255,255,255,0.02); }
+        .mobile-logout { color: var(--danger); }
+
         /* ── Layout ── */
         .wrap { max-width: 1600px; margin: 0 auto; padding: 2rem 3rem; }
 
@@ -254,6 +311,74 @@
         .modal-error { font-size: 0.88rem; color: var(--danger); margin-top: 0.75rem; display: none; }
 
         #authGate { display: flex; align-items: center; justify-content: center; min-height: 100vh; color: var(--muted); font-size: 1rem; }
+
+        .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .table-scroll .data-table { min-width: 640px; }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 900px) {
+            .wrap { padding: 1.5rem 1.25rem; }
+            header { padding: 1rem 1.25rem; }
+            .header-title { display: none; }
+            .btn-logout { display: none; }
+            #userLabel { display: none; }
+            .nav-burger { display: flex; }
+            .tabs { display: none; }
+            .mobile-tabs-menu { display: flex; }
+            .form-row { grid-template-columns: 1fr; gap: 0; }
+            .client-cards { grid-template-columns: 1fr; }
+            .modal-card { padding: 1.5rem; }
+            .panel-header h2 { font-size: 1.25rem; }
+        }
+
+        @media (max-width: 560px) {
+            .tabs { gap: 0.15rem; }
+            .tab-btn { padding: 0.7rem 0.6rem; font-size: 0.9rem; }
+            .summary-strip { grid-template-columns: 1fr 1fr; }
+            .btn-add { width: 100%; justify-content: center; }
+            .panel-header { flex-direction: column; align-items: stretch; }
+        }
+
+        /* Tables become stacked cards on narrow screens instead of a cramped,
+           horizontally-scrolling grid — each <td> shows its column as a label. */
+        @media (max-width: 700px) {
+            .table-scroll { overflow-x: visible; }
+            .table-scroll .data-table { min-width: 0; }
+            .data-table { border: none; background: none; }
+            .data-table thead { display: none; }
+            .data-table, .data-table tbody, .data-table tr, .data-table td { display: block; width: 100%; }
+            .data-table tr {
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: 14px;
+                padding: 0.9rem 1.1rem;
+                margin-bottom: 0.85rem;
+            }
+            .data-table tr:last-child { margin-bottom: 0; }
+            .data-table td {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 1rem;
+                padding: 0.5rem 0;
+                border-bottom: 1px solid var(--border);
+                text-align: right;
+            }
+            .data-table td:last-child { border-bottom: none; padding-top: 0.75rem; }
+            .data-table td:before {
+                content: attr(data-label);
+                font-size: 0.72rem;
+                font-weight: 700;
+                color: var(--muted);
+                text-transform: uppercase;
+                letter-spacing: 0.03em;
+                text-align: left;
+                flex-shrink: 0;
+            }
+            .data-table td[data-label=""]:before { display: none; }
+            .data-table td[data-label=""] { justify-content: flex-end; }
+            .row-actions { flex-wrap: wrap; justify-content: flex-end; }
+        }
     </style>
 </head>
 <body>
@@ -268,8 +393,21 @@
             <div class="header-right">
                 <span id="userLabel"></span>
                 <button class="btn-logout" id="logoutBtn">Cerrar sesión</button>
+                <button type="button" class="nav-burger" id="panelBurger" aria-label="Abrir menú" aria-expanded="false">
+                    <span></span><span></span><span></span>
+                </button>
             </div>
         </header>
+
+        <div class="mobile-tabs-menu" id="mobileTabsMenu">
+            <button class="mobile-tab-link is-active" data-tab="resumen">Resumen</button>
+            <button class="mobile-tab-link" data-tab="clientes">Clientes</button>
+            <button class="mobile-tab-link" data-tab="mantenimientos">Mantenimientos</button>
+            <button class="mobile-tab-link" data-tab="ingresos">Ingresos</button>
+            <button class="mobile-tab-link" data-tab="gastos">Gastos</button>
+            <div class="mobile-tabs-divider"></div>
+            <button class="mobile-tab-link mobile-logout" id="mobileLogoutBtn">Cerrar sesión</button>
+        </div>
 
         <div class="wrap">
             <div class="tabs">
@@ -292,7 +430,7 @@
                     <h2>Clientes</h2>
                     <button class="btn-add" onclick="openClienteModal()">+ Nuevo cliente</button>
                 </div>
-                <div id="clientesTableWrap"></div>
+                <div id="clientesTableWrap" class="table-scroll"></div>
             </section>
 
             <!-- MANTENIMIENTOS -->
@@ -304,7 +442,7 @@
                 <div class="filters">
                     <select id="filtroClienteMant" onchange="renderMantenimientos()"><option value="">Todos los clientes</option></select>
                 </div>
-                <div id="mantenimientosTableWrap"></div>
+                <div id="mantenimientosTableWrap" class="table-scroll"></div>
             </section>
 
             <!-- INGRESOS -->
@@ -321,7 +459,7 @@
                         <option value="declarado">IVA declarado</option>
                     </select>
                 </div>
-                <div id="ingresosTableWrap"></div>
+                <div id="ingresosTableWrap" class="table-scroll"></div>
             </section>
 
             <!-- GASTOS -->
@@ -342,7 +480,7 @@
                         <option value="Otro">Otro</option>
                     </select>
                 </div>
-                <div id="gastosTableWrap"></div>
+                <div id="gastosTableWrap" class="table-scroll"></div>
             </section>
         </div>
     </div>
@@ -538,20 +676,49 @@
             await loadAll();
         })();
 
-        document.getElementById('logoutBtn').addEventListener('click', async () => {
+        async function doLogout() {
             await supabaseClient.auth.signOut();
             window.location.href = 'login.html';
+        }
+        document.getElementById('logoutBtn').addEventListener('click', doLogout);
+        document.getElementById('mobileLogoutBtn').addEventListener('click', doLogout);
+
+        // ── Tabs (desktop bar + mobile hamburger menu, kept in sync) ──
+        function activateTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('is-active', b.dataset.tab === tabName));
+            document.querySelectorAll('.mobile-tab-link[data-tab]').forEach(b => b.classList.toggle('is-active', b.dataset.tab === tabName));
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('is-active'));
+            document.getElementById('panel-' + tabName).classList.add('is-active');
+        }
+
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => activateTab(btn.dataset.tab));
         });
 
-        // ── Tabs ──
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('is-active'));
-                document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('is-active'));
-                btn.classList.add('is-active');
-                document.getElementById('panel-' + btn.dataset.tab).classList.add('is-active');
+        // ── Mobile panel menu (hamburger) ──
+        (() => {
+            const burger = document.getElementById('panelBurger');
+            const menu = document.getElementById('mobileTabsMenu');
+
+            function closeMenu() {
+                menu.classList.remove('is-open');
+                burger.classList.remove('is-active');
+                burger.setAttribute('aria-expanded', 'false');
+            }
+
+            burger.addEventListener('click', () => {
+                const isOpen = menu.classList.toggle('is-open');
+                burger.classList.toggle('is-active', isOpen);
+                burger.setAttribute('aria-expanded', String(isOpen));
             });
-        });
+
+            menu.querySelectorAll('.mobile-tab-link[data-tab]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    activateTab(btn.dataset.tab);
+                    closeMenu();
+                });
+            });
+        })();
 
         function closeModal(id) {
             document.getElementById(id).classList.remove('is-open');
@@ -665,12 +832,12 @@
             }
             const rows = clientesCache.map(c => `
                 <tr>
-                    <td>${escapeHtml(c.nombre)}</td>
-                    <td class="muted">${escapeHtml(c.contacto_email || c.contacto_nombre || '—')}</td>
-                    <td>${c.horas_incluidas_mensuales} h</td>
-                    <td class="muted">${c.frecuencia_pago}</td>
-                    <td><span class="badge ${c.activo ? 'on' : 'off'}">${c.activo ? 'Activo' : 'Inactivo'}</span></td>
-                    <td>
+                    <td data-label="Nombre">${escapeHtml(c.nombre)}</td>
+                    <td class="muted" data-label="Contacto">${escapeHtml(c.contacto_email || c.contacto_nombre || '—')}</td>
+                    <td data-label="Horas/mes">${c.horas_incluidas_mensuales} h</td>
+                    <td class="muted" data-label="Frecuencia">${c.frecuencia_pago}</td>
+                    <td data-label="Estado"><span class="badge ${c.activo ? 'on' : 'off'}">${c.activo ? 'Activo' : 'Inactivo'}</span></td>
+                    <td data-label="">
                         <div class="row-actions">
                             <button onclick="openClienteModal('${c.id}')">Editar</button>
                             <button class="danger" onclick="deleteCliente('${c.id}')">Eliminar</button>
@@ -754,11 +921,11 @@
                 .filter(m => !filtro || m.cliente_id === filtro)
                 .map(m => `
                     <tr>
-                        <td class="muted">${m.fecha}</td>
-                        <td>${escapeHtml(m.clientes ? m.clientes.nombre : '—')}</td>
-                        <td>${escapeHtml(m.descripcion)}</td>
-                        <td>${Number(m.horas_consumidas).toFixed(2)} h</td>
-                        <td>
+                        <td class="muted" data-label="Fecha">${m.fecha}</td>
+                        <td data-label="Cliente">${escapeHtml(m.clientes ? m.clientes.nombre : '—')}</td>
+                        <td data-label="Descripción">${escapeHtml(m.descripcion)}</td>
+                        <td data-label="Horas">${Number(m.horas_consumidas).toFixed(2)} h</td>
+                        <td data-label="">
                             <div class="row-actions">
                                 <button class="danger" onclick="deleteMantenimiento('${m.id}')">Eliminar</button>
                             </div>
@@ -814,13 +981,13 @@
                 .filter(p => !filtroIva || (filtroIva === 'pendiente' ? !p.iva_declarado : p.iva_declarado))
                 .map(p => `
                     <tr>
-                        <td class="muted">${p.fecha_pago}</td>
-                        <td>${escapeHtml(p.clientes ? p.clientes.nombre : '—')}</td>
-                        <td class="muted">${escapeHtml(p.concepto || '—')}</td>
-                        <td>₡${Number(p.monto).toLocaleString('es-CR')}</td>
-                        <td class="muted">₡${Number(p.monto_iva || 0).toLocaleString('es-CR')}</td>
-                        <td><span class="badge ${p.iva_declarado ? 'on' : 'off'}">${p.iva_declarado ? 'Declarado' : 'Pendiente'}</span></td>
-                        <td>
+                        <td class="muted" data-label="Fecha">${p.fecha_pago}</td>
+                        <td data-label="Cliente">${escapeHtml(p.clientes ? p.clientes.nombre : '—')}</td>
+                        <td class="muted" data-label="Concepto">${escapeHtml(p.concepto || '—')}</td>
+                        <td data-label="Monto">₡${Number(p.monto).toLocaleString('es-CR')}</td>
+                        <td class="muted" data-label="IVA">₡${Number(p.monto_iva || 0).toLocaleString('es-CR')}</td>
+                        <td data-label="Estado IVA"><span class="badge ${p.iva_declarado ? 'on' : 'off'}">${p.iva_declarado ? 'Declarado' : 'Pendiente'}</span></td>
+                        <td data-label="">
                             <div class="row-actions">
                                 ${p.factura_url ? `<button onclick="abrirAdjunto('${p.factura_url}')">Ver factura</button>` : ''}
                                 <button onclick="toggleIvaDeclarado('${p.id}', ${!p.iva_declarado})">${p.iva_declarado ? 'Marcar pendiente' : 'Marcar declarado'}</button>
@@ -924,11 +1091,11 @@
                 .filter(g => !filtro || g.categoria === filtro)
                 .map(g => `
                     <tr>
-                        <td class="muted">${g.fecha}</td>
-                        <td>${escapeHtml(g.categoria)}</td>
-                        <td>${escapeHtml(g.descripcion)}</td>
-                        <td>₡${Number(g.monto).toLocaleString('es-CR')}</td>
-                        <td>
+                        <td class="muted" data-label="Fecha">${g.fecha}</td>
+                        <td data-label="Categoría">${escapeHtml(g.categoria)}</td>
+                        <td data-label="Descripción">${escapeHtml(g.descripcion)}</td>
+                        <td data-label="Monto">₡${Number(g.monto).toLocaleString('es-CR')}</td>
+                        <td data-label="">
                             <div class="row-actions">
                                 ${g.comprobante_url ? `<button onclick="abrirAdjunto('${g.comprobante_url}')">Ver comprobante</button>` : ''}
                                 <button class="danger" onclick="deleteGasto('${g.id}')">Eliminar</button>
