@@ -227,8 +227,29 @@
             border-radius: 16px;
             padding: 1.5rem;
             min-width: 0;
+            position: relative;
         }
-        .client-card h3 { font-family: 'Montserrat', sans-serif; font-size: 1.2rem; margin-bottom: 0.9rem; }
+        .client-card-view {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: color 0.2s, border-color 0.2s, background 0.2s;
+        }
+        .client-card-view:hover {
+            color: var(--accent);
+            border-color: rgba(61,214,253,0.4);
+            background: rgba(61,214,253,0.08);
+        }
+        .client-card h3 { font-family: 'Montserrat', sans-serif; font-size: 1.2rem; margin-bottom: 0.9rem; padding-right: 2.5rem; }
         .hours-bar-track { height: 8px; border-radius: 4px; background: rgba(255,255,255,0.06); overflow: hidden; margin: 0.5rem 0; }
         .hours-bar-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
         .hours-bar-fill.is-over { background: var(--danger); }
@@ -310,6 +331,35 @@
         .modal-btn-cancel { background: rgba(255,255,255,0.04); color: var(--text); border: 1px solid var(--border) !important; }
         .modal-btn-save { background: linear-gradient(120deg, var(--accent), var(--accent-2)); color: #fff; }
         .modal-error { font-size: 0.88rem; color: var(--danger); margin-top: 0.75rem; display: none; }
+
+        .modal-close-x {
+            position: absolute;
+            top: 1.25rem;
+            right: 1.25rem;
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: color 0.2s, border-color 0.2s, background 0.2s;
+        }
+        .modal-close-x:hover { color: var(--text); background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); }
+
+        .modal-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.25rem;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 1rem;
+        }
+        .modal-brand img { height: 26px; width: auto; }
+        .modal-brand span { color: var(--accent); }
 
         #authGate { display: flex; align-items: center; justify-content: center; min-height: 100vh; color: var(--muted); font-size: 1rem; }
 
@@ -485,6 +535,27 @@
                 </div>
                 <div id="gastosTableWrap" class="table-scroll"></div>
             </section>
+        </div>
+    </div>
+
+    <!-- MODAL: Detalle de cliente (Resumen) -->
+    <div class="modal-overlay" id="modalClienteDetalle">
+        <div class="modal-card" style="max-width: 560px; position: relative;">
+            <button type="button" class="modal-close-x" onclick="closeModal('modalClienteDetalle')" aria-label="Cerrar">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+            <div class="modal-brand">
+                <img src="assets/logo.png" alt="Prisma360">
+                Prisma<span>360</span>
+            </div>
+            <h3 id="detalleClienteNombre">Cliente</h3>
+            <div class="hours-bar-track" style="height: 14px; margin-bottom: 0.9rem;">
+                <div class="hours-bar-fill" id="detalleBarFill" style="width:0%;"></div>
+            </div>
+            <div class="client-card-row"><span>Horas usadas / mes</span><strong id="detalleHorasUsadas"></strong></div>
+            <div class="client-card-row" style="margin-bottom: 1.5rem;"><span>Restantes</span><strong id="detalleHorasRestantes"></strong></div>
+            <div id="detalleMesTitulo" style="font-weight: 700; margin-bottom: 1rem;">Mantenimientos de este mes</div>
+            <div id="detalleMantenimientosWrap"></div>
         </div>
     </div>
 
@@ -816,6 +887,9 @@
 
                 return `
                     <div class="client-card">
+                        <button class="client-card-view" onclick="openClienteDetalle('${c.id}')" aria-label="Ver detalle de ${escapeHtml(c.nombre)}">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </button>
                         <h3>${escapeHtml(c.nombre)}</h3>
                         <div class="hours-bar-track"><div class="hours-bar-fill ${over ? 'is-over' : ''}" style="width:${pct}%"></div></div>
                         <div class="client-card-row"><span>Horas usadas / mes</span><strong>${consumidas.toFixed(1)} / ${incluidas}</strong></div>
@@ -825,6 +899,43 @@
                 `;
             }).join('');
             document.getElementById('clientCards').innerHTML = cardsHtml || '<p class="empty-state">Aún no hay clientes activos registrados.</p>';
+        }
+
+        function openClienteDetalle(clienteId) {
+            const c = clientesCache.find(x => x.id === clienteId);
+            if (!c) return;
+
+            const registrosMes = mantenimientosCache.filter(m => m.cliente_id === clienteId && isSameMonth(m.fecha));
+            const consumidas = registrosMes.reduce((s, m) => s + Number(m.horas_consumidas), 0);
+            const incluidas = Number(c.horas_incluidas_mensuales);
+            const restantes = incluidas - consumidas;
+            const pct = incluidas > 0 ? Math.min((consumidas / incluidas) * 100, 100) : 0;
+            const over = consumidas > incluidas;
+
+            document.getElementById('detalleClienteNombre').textContent = c.nombre;
+            const fill = document.getElementById('detalleBarFill');
+            fill.style.width = pct + '%';
+            fill.classList.toggle('is-over', over);
+            document.getElementById('detalleHorasUsadas').textContent = `${consumidas.toFixed(1)} / ${incluidas}`;
+            const restantesEl = document.getElementById('detalleHorasRestantes');
+            restantesEl.textContent = restantes.toFixed(1);
+            restantesEl.style.color = restantes < 0 ? 'var(--danger)' : '';
+
+            const mesNombre = new Date().toLocaleDateString('es-CR', { month: 'long', year: 'numeric' });
+            document.getElementById('detalleMesTitulo').textContent = `Mantenimientos de ${mesNombre}`;
+
+            const rows = registrosMes.map(m => `
+                <tr>
+                    <td class="muted" data-label="Fecha">${m.fecha}</td>
+                    <td data-label="Descripción">${escapeHtml(m.descripcion)}</td>
+                    <td data-label="Horas">${Number(m.horas_consumidas).toFixed(2)} h</td>
+                </tr>
+            `).join('');
+            document.getElementById('detalleMantenimientosWrap').innerHTML = rows
+                ? `<table class="data-table"><thead><tr><th>Fecha</th><th>Descripción</th><th>Horas</th></tr></thead><tbody>${rows}</tbody></table>`
+                : '<p class="empty-state">Sin registros de mantenimiento este mes.</p>';
+
+            openModal('modalClienteDetalle');
         }
 
         // ── CLIENTES ──
