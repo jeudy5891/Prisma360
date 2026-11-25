@@ -1,0 +1,729 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PrismaCashless — Demo interactiva de la app</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+<style>
+  /* ============================================================
+     Tokens — idénticos a src/index.css / UI-preview.html, así el
+     prototipo queda 1:1 con lo ya shippeado en el panel web.
+     ============================================================ */
+  :root {
+    --violet: #5D6EE2;
+    --violet-deep: #4A3FB0;
+    --indigo: #532271;
+    --violet-soft: #7D96EA;
+    --lilac: #EEF0FF;
+    --coral: #FE7F6C;
+    --coral-soft: #FFE9E4;
+    --mint: #3ECFA0;
+    --mint-soft: #E2F8F0;
+    --amber: #FFB454;
+    --amber-soft: #FFF1DC;
+    --rust: #C04A32;
+    --ink: #17132B;
+    --ink-soft: #6B6791;
+    --ink-faint: #9A96B8;
+    --line: #E7E7F2;
+    --bg: #F5F6FB;
+    --grad-brand: linear-gradient(135deg, #532271 0%, #5D6EE2 100%);
+    --grad-coral: linear-gradient(135deg, #FE8F6C 0%, #FE6F84 100%);
+    --card: 0 2px 4px rgba(23,19,43,.04), 0 12px 32px rgba(83,34,113,.08);
+    --shadow-lg: 0 20px 60px rgba(83,34,113,.18);
+    --radius: 20px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: transparent; height: 100%; overflow: hidden; }
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+  .mono { font-family: 'Space Grotesk', monospace; }
+  button { font-family: inherit; }
+
+  /* ---------- layout: teléfono + panel de salto rápido ---------- */
+  /* el teléfono mide 360x740 y se escala para llenar el iframe que lo contiene */
+  .phone {
+    width: 360px; height: 740px; background: #17132B; border-radius: 48px; padding: 10px;
+    position: absolute; left: 50%; top: 0; transform-origin: top center;
+    transform: translateX(-50%) scale(var(--s, 1));
+  }
+  .phone .screen {
+    width: 100%; height: 100%; background: var(--bg); border-radius: 38px; overflow: hidden;
+    position: relative;
+  }
+  .notch {
+    position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 120px; height: 26px;
+    background: #17132B; border-radius: 999px; z-index: 20;
+  }
+
+  /* ---------- vistas (una visible a la vez) ---------- */
+  .view { position: absolute; inset: 0; display: none; flex-direction: column; }
+  .view.active { display: flex; animation: rise .22s ease; }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .view-scroll { flex: 1; overflow-y: auto; padding: 32px 18px 18px; display: flex; flex-direction: column; gap: 14px; }
+  .view-scroll::-webkit-scrollbar { display: none; }
+  .has-tabbar .view-scroll { padding-bottom: 100px; }
+
+  /* ---------- back header para pantallas "empujadas" ---------- */
+  .topbar-back { display: flex; align-items: center; gap: 12px; padding: 32px 14px 2px; }
+  .topbar-back button {
+    width: 34px; height: 34px; border-radius: 12px; border: 1.5px solid var(--line); background: #fff;
+    display: grid; place-items: center; color: var(--ink); cursor: pointer; flex-shrink: 0;
+  }
+  .topbar-back button:hover { border-color: var(--violet); color: var(--violet-deep); }
+  .topbar-back span { font-size: 16px; font-weight: 800; }
+
+  .s-title { font-size: 21px; font-weight: 800; letter-spacing: -.3px; }
+  .s-sub { color: var(--ink-soft); font-size: 13px; }
+
+  /* ---------- tarjetas / inputs / botones (idéntico a UI-preview) ---------- */
+  .card {
+    background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
+    box-shadow: var(--card); padding: 18px;
+  }
+  .input {
+    width: 100%; border: 1.5px solid var(--line); border-radius: 16px; padding: 14px 16px; font-size: 14px;
+    font-family: inherit; background: #fff; outline: none; transition: .15s; color: var(--ink);
+  }
+  .input:focus { border-color: var(--violet); box-shadow: 0 0 0 4px var(--lilac); }
+  .label { font-size: 12px; font-weight: 700; color: var(--ink-soft); margin-bottom: 6px; display: block; }
+  .field { display: flex; flex-direction: column; gap: 2px; }
+
+  .btn {
+    border: 0; font-family: inherit; font-weight: 800; border-radius: 18px; padding: 15px; font-size: 14.5px;
+    cursor: pointer; transition: transform .12s, box-shadow .2s; width: 100%;
+  }
+  .btn:active { transform: scale(.98); }
+  .btn-primary { background: var(--grad-brand); color: #fff; box-shadow: 0 10px 24px rgba(83,34,113,.3); }
+  .btn-coral { background: var(--grad-coral); color: #fff; box-shadow: 0 10px 24px rgba(254,111,132,.3); }
+  .btn-ghost { background: #fff; border: 1.5px solid var(--line); color: var(--ink); }
+  .btn-destructive { background: #fff; border: 1.5px solid var(--rust); color: var(--rust); }
+  .btn-destructive-solid { background: var(--rust); color: #fff; box-shadow: 0 10px 24px rgba(192,74,50,.3); }
+  .link-row { text-align: center; font-size: 12.5px; color: var(--ink-soft); }
+  .link-row a, .link-btn { color: var(--violet-deep); font-weight: 700; cursor: pointer; text-decoration: none; background: none; border: 0; font-size: inherit; }
+
+  .amounts { display: flex; gap: 8px; }
+  .amount {
+    flex: 1; border: 1.5px solid var(--line); background: #fff; border-radius: 16px;
+    padding: 12px 6px; font-family: 'Space Grotesk'; font-weight: 700; font-size: 13.5px; cursor: pointer; color: var(--ink);
+  }
+  .amount.active { border-color: var(--violet); background: var(--lilac); color: var(--violet-deep); }
+
+  .chip { font-size: 11px; font-weight: 700; border-radius: 999px; padding: 5px 10px; display: inline-block; }
+  .chip-payment { background: var(--mint-soft); color: #1F9B73; }
+  .chip-topup { background: var(--lilac); color: var(--violet-deep); }
+  .chip-load { background: #EAE7FF; color: var(--indigo); }
+  .chip-refund { background: var(--coral-soft); color: #C04A32; }
+  .chip-pending { background: var(--amber-soft); color: #A86B10; }
+  .chip-paid { background: var(--mint-soft); color: #1F9B73; }
+  .chip-rejected { background: var(--coral-soft); color: var(--rust); }
+
+  .tx { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--line); }
+  .tx:last-child { border-bottom: 0; }
+  .tx .ico { width: 38px; height: 38px; border-radius: 13px; display: grid; place-items: center; font-size: 15px; flex-shrink: 0; }
+  .tx .meta { flex: 1; min-width: 0; }
+  .tx .meta b { display: block; font-size: 12.5px; }
+  .tx .meta span { font-size: 10.5px; color: var(--ink-soft); }
+  .tx .amt { font-family: 'Space Grotesk'; font-size: 12.5px; font-weight: 700; flex-shrink: 0; }
+
+  .section-label { font-size: 11px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; color: var(--ink-soft); margin-top: 4px; }
+
+  /* ---------- balance card / pills (home) ---------- */
+  .balance-card {
+    background: var(--grad-brand); border-radius: 24px; padding: 20px; color: #fff; position: relative; overflow: hidden;
+  }
+  .balance-card::after { content: ''; position: absolute; right: -50px; top: -60px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(255,255,255,.2) 0%, transparent 65%); }
+  /* .label y .amount son clases genéricas (campos de formulario y botones de
+     monto): aquí se anulan su color, borde, fondo y relleno */
+  .balance-card .label { font-size: 11.5px; opacity: .85; position: relative; color: #fff; margin-bottom: 0; }
+  .balance-card .amount {
+    font-family: 'Space Grotesk'; font-size: 32px; font-weight: 700; margin-top: 4px; letter-spacing: -.5px; position: relative;
+    background: none; border: 0; border-radius: 0; padding: 0; color: #fff; cursor: default; flex: none;
+  }
+  .balance-card .row { display: flex; justify-content: space-between; align-items: flex-end; position: relative; }
+  .balance-card .tags { margin-top: 14px; display: flex; gap: 8px; position: relative; }
+  .balance-card .tags .chip { background: rgba(255,255,255,.18); color: #fff; }
+
+  .pill-row { display: flex; gap: 8px; }
+  .pill {
+    flex: 1; border: 0; font-family: inherit; font-size: 12px; font-weight: 700; padding: 13px 4px;
+    border-radius: 16px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px;
+  }
+  .pill i { font-size: 16px; }
+  .pill-solid { background: var(--grad-brand); color: #fff; box-shadow: 0 8px 18px rgba(83,34,113,.3); }
+  .pill-coral { background: var(--coral-soft); color: #B4472E; }
+  .pill-line { background: #fff; border: 1.5px solid var(--line); color: var(--ink); }
+
+  .event-card { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+  .event-card .pin { width: 42px; height: 42px; border-radius: 14px; background: var(--lilac); color: var(--violet-deep); display: grid; place-items: center; font-size: 17px; flex-shrink: 0; }
+  .event-card .meta { flex: 1; min-width: 0; }
+  .event-card .meta b { display: block; font-size: 13.5px; }
+  .event-card .meta span { font-size: 11.5px; color: var(--ink-soft); }
+  .event-card > i.fa-chevron-right { color: var(--ink-faint); font-size: 13px; }
+
+  .map-placeholder {
+    border: 2px dashed #C9C7E4; border-radius: 20px; padding: 34px 16px; text-align: center; background: #fff;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+  }
+  .map-placeholder i { font-size: 30px; color: var(--violet-soft); }
+  .map-placeholder b { font-size: 13.5px; }
+  .map-placeholder span { font-size: 12px; color: var(--ink-soft); }
+
+  /* ---------- qr ---------- */
+  .qr-box { background: #fff; border: 1px solid var(--line); border-radius: 24px; padding: 28px; display: grid; place-items: center; }
+  .code-meta { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 12px; color: var(--ink-soft); }
+
+  .toggle-row { display: flex; align-items: center; gap: 12px; }
+  .toggle-row .meta { flex: 1; }
+  .toggle-row .meta b { display: block; font-size: 13.5px; }
+  .toggle-row .meta span { font-size: 11.5px; color: var(--ink-soft); }
+  .switch { position: relative; width: 44px; height: 26px; flex-shrink: 0; }
+  .switch input { opacity: 0; width: 100%; height: 100%; position: absolute; margin: 0; cursor: pointer; z-index: 1; }
+  .switch .track { position: absolute; inset: 0; background: var(--line); border-radius: 999px; transition: .15s; }
+  .switch .knob { position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: .15s; }
+  .switch input:checked + .track { background: var(--grad-brand); }
+  .switch input:checked ~ .knob { transform: translateX(18px); }
+
+  /* ---------- otp ---------- */
+  .otp-row { display: flex; gap: 8px; justify-content: center; }
+  .otp-box {
+    width: 42px; height: 52px; border: 1.5px solid var(--line); border-radius: 14px; text-align: center;
+    font-family: 'Space Grotesk'; font-size: 20px; font-weight: 700; outline: none; background: #fff; color: var(--ink);
+  }
+  .otp-box:focus { border-color: var(--violet); box-shadow: 0 0 0 4px var(--lilac); }
+
+  /* ---------- menú (Mi cuenta) ---------- */
+  .profile-head { display: flex; align-items: center; gap: 12px; cursor: pointer; padding-bottom: 4px; }
+  .avatar-lg { width: 52px; height: 52px; border-radius: 18px; background: var(--grad-brand); color: #fff; display: grid; place-items: center; font-size: 19px; font-weight: 800; font-family: 'Space Grotesk'; flex-shrink: 0; }
+  .profile-head b { display: block; font-size: 15px; }
+  .profile-head span { font-size: 12px; color: var(--ink-soft); }
+
+  .menu-row {
+    display: flex; align-items: center; gap: 12px; background: #fff; border: 1px solid var(--line); border-radius: 16px;
+    padding: 13px 14px; cursor: pointer;
+  }
+  .menu-row .ico { width: 36px; height: 36px; border-radius: 11px; background: var(--lilac); color: var(--violet-deep); display: grid; place-items: center; font-size: 14px; flex-shrink: 0; }
+  .menu-row span.label { flex: 1; font-size: 13.5px; font-weight: 700; color: var(--ink); margin-bottom: 0; }
+  .menu-row i.fa-chevron-right { color: var(--ink-faint); font-size: 12px; }
+  .menu-row.destructive .ico { background: var(--coral-soft); color: var(--rust); }
+  .menu-row.destructive span.label { color: var(--rust); }
+
+  .scanner-mock {
+    border: 2px dashed #C9C7E4; border-radius: 20px; padding: 26px; text-align: center; position: relative; background: #fff;
+  }
+  .scanner-mock .lens { width: 110px; height: 110px; margin: 0 auto 10px; border-radius: 8px; overflow: hidden; background: linear-gradient(135deg, #E4E6FF, #F3F4FF); position: relative; }
+  .scanner-mock .lens::after {
+    content: ''; position: absolute; left: 8px; right: 8px; height: 3px; background: var(--coral); border-radius: 2px;
+    animation: scan 2s ease-in-out infinite; box-shadow: 0 0 12px var(--coral);
+  }
+  @keyframes scan { 0%,100% { top: 8px; } 50% { top: 96px; } }
+
+  .empty-state { text-align: center; padding: 28px 12px; color: var(--ink-soft); }
+  .empty-state i { font-size: 26px; color: var(--ink-faint); margin-bottom: 8px; display: block; }
+  .empty-state b { display: block; color: var(--ink); font-size: 13.5px; margin-bottom: 10px; }
+
+  .legal-text { font-size: 12px; line-height: 1.6; color: var(--ink-soft); }
+  .legal-text b { color: var(--ink); display: block; margin: 10px 0 2px; font-size: 12.5px; }
+
+  /* ---------- splash ---------- */
+  /* sin "display" ni "position" propios: los decide .view/.view.active — si
+     no, empataban en especificidad con esas reglas y, por orden de cascada,
+     "display" se quedaba siempre en flex (splash nunca se ocultaba) y
+     "position" pasaba a relative (splash solo ocupaba el alto de su
+     contenido en vez de toda la pantalla) — ambos bugs reales, vistos en
+     capturas de pantalla */
+  .splash-view {
+    background: radial-gradient(120% 70% at 50% 40%, #FFFFFF 0%, #F7F7FF 45%, #ECE8FF 100%);
+    align-items: center; justify-content: center; flex-direction: column; gap: 18px; cursor: pointer; overflow: hidden;
+  }
+  .splash-view p { color: var(--ink-soft); font-size: 13px; font-weight: 600; }
+  .splash-dots { display: flex; gap: 6px; }
+  .splash-dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--violet); animation: blink 1.2s infinite ease-in-out; }
+  .splash-dots span:nth-child(2) { animation-delay: .2s; } .splash-dots span:nth-child(3) { animation-delay: .4s; }
+  @keyframes blink { 0%,80%,100% { opacity: .3; } 40% { opacity: 1; } }
+  .splash-hint { position: absolute; bottom: 22px; color: var(--ink-faint); font-size: 11.5px; font-weight: 700; }
+  .splash-tagline { animation: demo-rise .6s ease-out .5s both; }
+  .splash-dots, .splash-hint { animation: demo-rise .5s ease-out .8s both; }
+  @keyframes demo-rise { from { opacity: 0; translate: 0 10px; } to { opacity: 1; translate: 0 0; } }
+  .splash-mark {
+    width: 96px; height: 96px; border-radius: 30px; background: var(--grad-brand); color: #fff;
+    display: grid; place-items: center; font-size: 40px;
+    box-shadow: 0 18px 40px rgba(83,34,113,.35), 0 0 0 10px rgba(93,110,226,.12);
+    animation: demo-pop .7s cubic-bezier(.34,1.56,.64,1) both, demo-float 4s ease-in-out 1s infinite;
+  }
+  .splash-name { font-size: 26px; font-weight: 800; letter-spacing: -.5px; animation: demo-rise .6s ease-out .3s both; }
+  .splash-name span { background: var(--grad-brand); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  @keyframes demo-pop { from { opacity: 0; scale: .4; } to { opacity: 1; scale: 1; } }
+  @keyframes demo-float { 0%,100% { translate: 0 0; } 50% { translate: 0 -5px; } }
+
+  .onboard-mark { width: 52px; height: 52px; border-radius: 18px; background: var(--grad-brand); display: grid; place-items: center; margin: 22px auto 2px; color: #fff; font-size: 22px; }
+  .login-logo { display: block; width: 150px; margin: 18px auto 6px; filter: drop-shadow(0 6px 14px rgba(255,170,40,.25)); }
+
+  /* ---------- tab bar ---------- */
+  .tabbar {
+    position: absolute; left: 0; right: 0; bottom: 0; height: 78px; background: #fff;
+    border-top: 1px solid var(--line); box-shadow: 0 -2px 14px rgba(23,19,43,.07);
+    display: flex; align-items: center; justify-content: space-around; padding: 0 4px 10px; z-index: 15;
+  }
+  .tabbar.hidden { display: none; }
+  .tab-btn {
+    border: 0; background: none; display: flex; flex-direction: column; align-items: center; gap: 4px;
+    color: var(--ink-soft); font-size: 10px; font-weight: 700; cursor: pointer; flex: 1; padding-top: 10px;
+  }
+  .tab-btn i { font-size: 17px; }
+  .tab-btn.active { color: var(--violet-deep); }
+  .tab-qr {
+    border: 0; width: 60px; height: 60px; border-radius: 50%; background: var(--grad-brand); color: #fff;
+    display: grid; place-items: center; font-size: 22px; cursor: pointer; flex-shrink: 0; margin-top: -26px;
+    box-shadow: 0 10px 22px rgba(83,34,113,.4), 0 0 0 8px rgba(93,110,226,.15);
+  }
+
+</style>
+</head>
+<body>
+
+
+  <div class="phone"><div class="screen" id="screen">
+        <div class="notch"></div>
+
+        <!-- ============ ONBOARDING ============ -->
+
+        <div class="view active splash-view" data-view="splash" onclick="go('login')">
+          <div class="splash-mark"><i class="fa-solid fa-wallet"></i></div>
+          <div class="splash-name">Prisma<span>Cashless</span></div>
+          <p class="splash-tagline">Pagos sin contacto para eventos</p>
+          <div class="splash-dots"><span></span><span></span><span></span></div>
+          <span class="splash-hint">Toca la pantalla para comenzar</span>
+        </div>
+
+        <div class="view" data-view="login">
+          <div class="view-scroll">
+            <div style="text-align:center">
+              <div class="onboard-mark"><i class="fa-solid fa-wallet"></i></div>
+              <div class="s-title">PrismaCashless</div>
+              <p class="s-sub">Pagos sin contacto · eventos</p>
+            </div>
+            <div class="field"><label class="label">Correo</label><input class="input" value="fabian@example.com" /></div>
+            <div class="field"><label class="label">Contraseña</label><input class="input" type="password" value="••••••••" /></div>
+            <button class="btn btn-primary" style="margin-top:4px" onclick="go('eventos')">Entrar</button>
+            <p class="link-row">¿Sin cuenta? <button class="link-btn" onclick="go('registro')">Regístrate</button></p>
+          </div>
+        </div>
+
+        <div class="view" data-view="registro">
+          <div class="topbar-back"><button onclick="back()"><i class="fa-solid fa-arrow-left"></i></button><span>Crear cuenta</span></div>
+          <div class="view-scroll" style="padding-top:8px">
+            <div class="field"><label class="label">Nombre completo</label><input class="input" value="Fabián Rojas" /></div>
+            <div class="field"><label class="label">Correo</label><input class="input" placeholder="tucorreo@ejemplo.com" /></div>
+            <div class="field"><label class="label">Contraseña (mín. 6)</label><input class="input" type="password" placeholder="••••••••" /></div>
+            <button class="btn btn-primary" style="margin-top:4px" onclick="go('verificar-codigo')">Crear cuenta</button>
+            <p class="link-row">¿Ya tienes cuenta? <button class="link-btn" onclick="go('login')">Inicia sesión</button></p>
+          </div>
+        </div>
+
+        <div class="view" data-view="verificar-codigo">
+          <div class="topbar-back"><button onclick="back()"><i class="fa-solid fa-arrow-left"></i></button><span>Verificar correo</span></div>
+          <div class="view-scroll" style="align-items:center;text-align:center;padding-top:14px">
+            <div class="onboard-mark" style="margin-top:4px"><i class="fa-solid fa-envelope"></i></div>
+            <div class="s-title">Revisa tu correo</div>
+            <p class="s-sub">Enviamos un código de 6 dígitos a<br /><b style="color:var(--ink)">fa•••••@example.com</b></p>
+            <div class="otp-row" style="margin-top:6px">
+              <input class="otp-box" maxlength="1" value="4" /><input class="otp-box" maxlength="1" value="1" />
+              <input class="otp-box" maxlength="1" value="2" /><input class="otp-box" maxlength="1" />
+              <input class="otp-box" maxlength="1" /><input class="otp-box" maxlength="1" />
+            </div>
+            <button class="btn btn-primary" style="margin-top:8px" onclick="go('eventos')">Confirmar</button>
+            <p class="link-row">¿No llegó? <span style="color:var(--ink-faint)">Reenviar en 00:38</span></p>
+          </div>
+        </div>
+
+        <div class="view" data-view="eventos">
+          <div class="view-scroll" style="padding-top:36px">
+            <div class="s-title">Elige tu evento</div>
+            <p class="s-sub">Al unirte, generamos tu código para pagar y recargar.</p>
+            <div class="card event-card" onclick="go('inicio')">
+              <div class="pin"><i class="fa-solid fa-champagne-glasses"></i></div>
+              <div class="meta"><b>Feria Demo</b><span>Activo ahora · CRC</span></div>
+              <i class="fa-solid fa-chevron-right"></i>
+            </div>
+            <div class="card event-card" onclick="go('inicio')">
+              <div class="pin"><i class="fa-solid fa-umbrella-beach"></i></div>
+              <div class="meta"><b>Finde de Picnic — Parque La Sabana</b><span>14–15 nov 2026 · CRC</span></div>
+              <i class="fa-solid fa-chevron-right"></i>
+            </div>
+            <button class="btn btn-ghost" style="margin-top:4px" onclick="go('vincular')">Tengo una pulsera o QR impreso — vincularlo</button>
+          </div>
+        </div>
+
+        <div class="view" data-view="vincular">
+          <div class="topbar-back"><button onclick="back()"><i class="fa-solid fa-arrow-left"></i></button><span>Vincular dispositivo</span></div>
+          <div class="view-scroll" style="padding-top:8px">
+            <div class="scanner-mock"><div class="lens"></div><p class="s-sub">Escanea el QR impreso al comprar tu dispositivo</p></div>
+            <button class="btn btn-ghost" onclick="back()">Cancelar</button>
+          </div>
+        </div>
+
+        <!-- ============ SHELL PRINCIPAL (5 tabs) ============ -->
+
+        <div class="view has-tabbar" data-view="inicio">
+          <div class="view-scroll">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <b style="font-size:16px">Hola, Fabián</b>
+              <i class="fa-regular fa-bell" style="font-size:16px;color:var(--ink-soft)"></i>
+            </div>
+            <div class="balance-card">
+              <div class="row"><div><div class="label">Saldo disponible</div><div class="amount">₡ 18 500</div></div><div style="font-size:22px">✨</div></div>
+              <div class="tags"><span class="chip">FERIA DEMO</span><span class="chip">QR</span></div>
+            </div>
+            <div class="pill-row">
+              <button class="pill pill-solid" onclick="go('recargas')"><i class="fa-solid fa-arrows-rotate"></i>Recargar</button>
+              <button class="pill pill-line" onclick="go('qr')"><i class="fa-solid fa-qrcode"></i>Mi código</button>
+              <button class="pill pill-coral" onclick="go('reembolso')"><i class="fa-solid fa-hand-holding-dollar"></i>Reembolso</button>
+            </div>
+            <span class="section-label">Tu evento</span>
+            <div class="card event-card" onclick="go('mapa-evento')">
+              <div class="pin"><i class="fa-solid fa-champagne-glasses"></i></div>
+              <div class="meta"><b>Feria Demo</b><span>Hoy · 10:00–20:00 · Ver mapa del evento</span></div>
+              <i class="fa-solid fa-chevron-right"></i>
+            </div>
+          </div>
+          <nav class="tabbar" id="tabbar"></nav>
+        </div>
+
+        <div class="view" data-view="mapa-evento">
+          <div class="topbar-back"><button onclick="back()"><i class="fa-solid fa-arrow-left"></i></button><span>Mapa del evento</span></div>
+          <div class="view-scroll" style="padding-top:8px">
+            <div class="map-placeholder">
+              <i class="fa-solid fa-map-location-dot"></i>
+              <b>Mapa del evento</b>
+              <span>Ubicación de sucursales, quioscos y puntos de venta</span>
+            </div>
+            <div class="card" style="display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;justify-content:space-between;font-size:12.5px"><span class="s-sub">Evento</span><b>Feria Demo</b></div>
+              <div style="display:flex;justify-content:space-between;font-size:12.5px"><span class="s-sub">Horario</span><b>Hoy · 10:00–20:00</b></div>
+              <div style="display:flex;justify-content:space-between;font-size:12.5px"><span class="s-sub">Moneda</span><b>CRC</b></div>
+              <div style="display:flex;justify-content:space-between;font-size:12.5px"><span class="s-sub">Dispositivo</span><b>QR</b></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="view has-tabbar" data-view="recargas">
+          <div class="view-scroll">
+            <div class="s-title" style="margin-top:14px">Recargar saldo</div>
+            <p class="s-sub">Paga con tarjeta aquí, o recarga en efectivo mostrando tu código en un quiosco del evento.</p>
+            <div class="amounts">
+              <button class="amount">₡5 000</button>
+              <button class="amount active">₡10 000</button>
+              <button class="amount">₡20 000</button>
+            </div>
+            <input class="input mono" value="₡10 000" />
+            <button class="btn btn-primary">Recargar ₡10 000</button>
+            <span class="section-label">Mis recargas</span>
+            <div class="card" style="padding:4px 14px">
+              <div class="tx"><span class="ico" style="background:var(--lilac)"><i class="fa-solid fa-credit-card" style="color:var(--violet-deep)"></i></span><div class="meta"><b>Recarga con tarjeta</b><span>Ayer · 10:02</span></div><span class="chip chip-topup">Recarga</span><span class="amt" style="color:var(--violet-deep)">+₡10 000</span></div>
+              <div class="tx"><span class="ico" style="background:#EAE7FF"><i class="fa-solid fa-ticket" style="color:var(--indigo)"></i></span><div class="meta"><b>Apertura feria</b><span>25 ago · 09:00 · Quiosco Norte</span></div><span class="chip chip-load">Inicial</span><span class="amt" style="color:var(--violet-deep)">+₡5 000</span></div>
+            </div>
+          </div>
+          <nav class="tabbar" id="tabbar2"></nav>
+        </div>
+
+        <div class="view has-tabbar" data-view="qr">
+          <div class="view-scroll" style="align-items:center;text-align:center">
+            <div class="s-title" style="margin-top:14px;align-self:center">Mi código</div>
+            <div class="qr-box">
+              <svg width="190" height="190" viewBox="0 0 21 21">
+                <rect width="21" height="21" fill="#fff"/>
+                <path fill="#17132B" d="M0 0h5v5H0zM8 0h5v5H8zM16 0h5v5h-5zM0 8h5v5H0zM8 8h3v3H8zM16 8h5v5h-5zM0 16h5v5H0zM8 16h5v5H8zM16 16h2v2h-2zM18 13h2v2h-2zM6 2h1v1H6zM13 2h1v1h-1zM13 5h2v2h-2zM3 10h1v1H3zM10 12h1v1h-1zM2 13h2v2H2zM13 13h1v2h-1zM14 13h2v1h-2zM3 18h2v1H3zM6 18h1v2H6zM12 18h1v2h-1zM14 16h1v1h-1zM17 18h1v1h-1z"/>
+              </svg>
+            </div>
+            <div class="code-meta"><i class="fa-regular fa-clock"></i> Se renueva en 18 s · <button class="link-btn" style="font-size:12px">Código nuevo</button></div>
+            <b class="mono" style="font-size:19px;color:var(--violet-deep)">₡18 500</b>
+            <div class="card" style="width:100%;text-align:left">
+              <div class="toggle-row">
+                <div class="meta"><b>Pagar con NFC</b><span>Usa tu celular como pulsera</span></div>
+                <label class="switch"><input type="checkbox" /><span class="track"></span><span class="knob"></span></label>
+              </div>
+            </div>
+            <p class="s-sub">Muestra este código en la caja para pagar, o en un quiosco de recarga para cargar saldo en efectivo.</p>
+            <span class="mono" style="font-size:11px;color:var(--ink-faint)">APP15EE6F11AE99</span>
+          </div>
+          <nav class="tabbar" id="tabbar3"></nav>
+        </div>
+
+        <div class="view has-tabbar" data-view="reembolso">
+          <div class="view-scroll">
+            <div class="s-title" style="margin-top:14px">Solicitar reembolso</div>
+            <p class="s-sub">Saldo disponible: ₡18 500</p>
+            <div class="field"><label class="label">Monto</label><input class="input" placeholder="Todo mi saldo (₡18 500)" /></div>
+            <div class="field"><label class="label">¿A dónde te enviamos el dinero?</label><input class="input" placeholder="N.º SINPE Móvil, IBAN o indicación" /></div>
+            <button class="btn btn-coral">Solicitar reembolso de ₡18 500</button>
+            <span class="section-label">Mis solicitudes</span>
+            <div class="card" style="display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <div><b class="mono" style="font-size:13px">₡5 000</b><div class="s-sub" style="font-size:11px">10 oct 2026</div></div>
+                <span class="chip chip-pending">Pendiente</span>
+              </div>
+              <div style="height:1px;background:var(--line)"></div>
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <div><b class="mono" style="font-size:13px">₡2 000</b><div class="s-sub" style="font-size:11px">2 oct 2026 · SINPE Móvil · ref. 884321</div></div>
+                <span class="chip chip-paid">Pagado</span>
+              </div>
+            </div>
+          </div>
+          <nav class="tabbar" id="tabbar4"></nav>
+        </div>
+
+        <div class="view has-tabbar" data-view="micuenta">
+          <div class="view-scroll">
+            <div class="profile-head" style="margin-top:14px" onclick="go('perfil')">
+              <div class="avatar-lg">FR</div>
+              <div><b>Fabián Rojas</b><span>fabian@example.com</span></div>
+              <i class="fa-solid fa-chevron-right" style="color:var(--ink-faint)"></i>
+            </div>
+            <div class="menu-row" onclick="go('perfil')"><span class="ico"><i class="fa-solid fa-user-pen"></i></span><span class="label">Perfil</span><i class="fa-solid fa-chevron-right"></i></div>
+            <div class="menu-row" onclick="go('mis-eventos')"><span class="ico"><i class="fa-solid fa-calendar-days"></i></span><span class="label">Mis eventos</span><i class="fa-solid fa-chevron-right"></i></div>
+            <div class="menu-row" onclick="go('metodos-pago')"><span class="ico"><i class="fa-solid fa-credit-card"></i></span><span class="label">Métodos de pago</span><i class="fa-solid fa-chevron-right"></i></div>
+            <div class="menu-row" onclick="go('ajustes')"><span class="ico"><i class="fa-solid fa-gear"></i></span><span class="label">Ajustes</span><i class="fa-solid fa-chevron-right"></i></div>
+            <div class="menu-row" onclick="go('cuenta')"><span class="ico"><i class="fa-solid fa-address-card"></i></span><span class="label">Cuenta</span><i class="fa-solid fa-chevron-right"></i></div>
+            <div class="menu-row" onclick="go('contrasena')"><span class="ico"><i class="fa-solid fa-lock"></i></span><span class="label">Contraseña</span><i class="fa-solid fa-chevron-right"></i></div>
+            <div class="menu-row" onclick="go('terminos')"><span class="ico"><i class="fa-solid fa-file-contract"></i></span><span class="label">Términos y condiciones</span><i class="fa-solid fa-chevron-right"></i></div>
+            <div class="menu-row destructive" onclick="go('eliminar-cuenta')"><span class="ico"><i class="fa-solid fa-trash-can"></i></span><span class="label">Eliminar cuenta</span><i class="fa-solid fa-chevron-right"></i></div>
+            <button class="btn btn-destructive" style="margin-top:4px" onclick="go('login')">Cerrar sesión</button>
+          </div>
+          <nav class="tabbar" id="tabbar5"></nav>
+        </div>
+
+        <!-- ---- Mi cuenta: Perfil y Mis eventos (diseño completo) ---- -->
+
+        <div class="view" data-view="perfil">
+          <div class="topbar-back"><button onclick="back()"><i class="fa-solid fa-arrow-left"></i></button><span>Perfil</span></div>
+          <div class="view-scroll" style="align-items:center;padding-top:10px">
+            <div style="position:relative">
+              <div class="avatar-lg" style="width:76px;height:76px;font-size:26px;border-radius:24px">FR</div>
+              <span style="position:absolute;bottom:-4px;right:-4px;width:26px;height:26px;border-radius:50%;background:#fff;border:1.5px solid var(--line);display:grid;place-items:center;font-size:11px;color:var(--violet-deep)"><i class="fa-solid fa-camera"></i></span>
+            </div>
+            <div style="width:100%;display:flex;flex-direction:column;gap:12px;margin-top:8px">
+              <div class="field"><label class="label">Nombre completo</label><input class="input" value="Fabián Rojas" /></div>
+              <div class="field"><label class="label">Teléfono</label><input class="input" value="+506 8888 4444" /></div>
+              <button class="btn btn-primary">Guardar cambios</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="view" data-view="mis-eventos">
+          <div class="topbar-back"><button onclick="back()"><i class="fa-solid fa-arrow-left"></i></button><span>Mis eventos</span></div>
+          <div class="view-scroll" style="padding-top:8px">
+            <div class="card event-card" onclick="go('evento-detalle')">
+              <div class="pin"><i class="fa-solid fa-champagne-glasses"></i></div>
+              <div class="meta"><b>Feria Demo</b><span>Activo · desde 25 ago 2026</span></div>
+              <i class="fa-solid fa-chevron-right"></i>
+            </div>
+            <div class="card event-card" onclick="go('evento-detalle')">
+              <div class="pin"><i class="fa-solid fa-drumstick-bite"></i></div>
+              <div class="meta"><b>Noche de Food Trucks</b><span>Finalizado · sep 2026</span></div>
+              <i class="fa-solid fa-chevron-right"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="view" data-view="evento-detalle">
+          <div class="topbar-back"><button onclick="back()"><i class="fa-solid fa-arrow-left"></i></button><span>Feria Demo</span></div>
+          <div class="view-scroll" style="padding-top:8px">
+            <div class="card" style="display:flex;justify-content:space-between;align-items:center">
+              <div><span class="s-sub" style="font-size:11px">Saldo final</span><b class="mono" style="display:block;font-size:17px;color:var(--violet-deep)">₡18 500</b></div>
+              <span class="chip chip-topup">QR · APP15EE6F11AE99</span>
+            </div>
+            <span class="section-label">Historial de transacciones</span>
+            <div class="card" style="padding:4px 14px">
+              <div class="tx"><span class="ico" style="background:var(--mint-soft)">🍜</span><div class="meta"><b>Tacos La Esquina</b><span>Hoy · 13:42 · Sucursal Centro</span></div><span class="chip chip-payment">Pago</span><span class="amt">−₡3 500</span></div>
+              <div class="tx"><span class="ico" style="background:var(--lilac)">🔋</span><div class="meta"><b>Recarga</b><span>Ayer · 10:02 · Quiosco Norte</span></div><span class="chip chip-topup">Recarga</span><span class="amt" style="color:var(--violet-deep)">+₡10 000</span></div>
+              <div class="tx"><span class="ico" style="background:var(--amber-soft)">🎂</span><div class="meta"><b>Postres Ana</b><span>25 ago · 18:20 · Sucursal Paseo</span></div><span class="chip chip-payment">Pago</span><span class="amt">−₡2 000</span></div>
+              <div class="tx"><span class="ico" style="background:#E7F0FF">🎫</span><div class="meta"><b>Apertura feria</b><span>25 ago · 09:00 · Quiosco Norte</span></div><span class="chip chip-load">Inicial</span><span class="amt" style="color:var(--violet-deep)">+₡5 000</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ---- Mi cuenta: 6 pantallas con plantilla simple ---- -->
+
+        <div class="view" data-view="metodos-pago">
+          <div class="topbar-back"><button onclick="back()"><i class="fa-solid fa-arrow-left"></i></button><span>Métodos de pago</span></div>
+          <div class="view-scroll" style="padding-top:8px">
+            <div class="card empty-state">
+              <i class="fa-solid fa-credit-card"></i>
+              <b>Aún no tienes métodos de pago guardados</b>
+              <button class="btn btn-ghost">Agregar método</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="view" data-view="ajustes">
+          <div class="topbar-back"><button onclick="back()"><i class="fa-solid fa-arrow-left"></i></button><span>Ajustes</span></div>
+          <div class="view-scroll" style="padding-top:8px">
+            <div class="card" style="display:flex;flex-direction:column;gap:14px">
+              <div class="toggle-row"><div class="meta"><b>Notificaciones push</b><span>Avisos de pagos y reembolsos</span></div><label class="switch"><input type="checkbox" checked /><span class="track"></span><span class="knob"></span></label></div>
+              <div style="height:1px;background:var(--line)"></div>
+              <div class="toggle-row"><div class="meta"><b>Activar NFC por defecto</b><span>Al unirte a un evento con pulsera</span></div><label class="switch"><input type="checkbox" /><span class="track"></span><span class="knob"></span></label></div>
+              <div style="height:1px;background:var(--line)"></div>
+              <div class="toggle-row"><div class="meta"><b>Modo oscuro</b><span>Sigue el tema del sistema</span></div><label class="switch"><input type="checkbox" /><span class="track"></span><span class="knob"></span></label></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="view" data-view="cuenta">
+          <div class="topbar-back"><button onclick="back()"><i class="fa-solid fa-arrow-left"></i></button><span>Cuenta</span></div>
+          <div class="view-scroll" style="padding-top:8px">
+            <div class="card" style="display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;justify-content:space-between;font-size:12.5px"><span class="s-sub">Correo</span><b>fabian@example.com</b></div>
+              <div style="display:flex;justify-content:space-between;font-size:12.5px"><span class="s-sub">Teléfono</span><b>+506 8888 4444</b></div>
+              <div style="display:flex;justify-content:space-between;font-size:12.5px"><span class="s-sub">Miembro desde</span><b>ago 2026</b></div>
+            </div>
+            <span class="section-label">Seguridad</span>
+            <button class="btn btn-destructive">Perdí mi celular — bloquear mi dispositivo</button>
+            <p class="s-sub" style="font-size:11.5px">Bloquea el código actual, crea uno nuevo con tu saldo y cierra tu sesión en los demás teléfonos.</p>
+          </div>
+        </div>
+
+        <div class="view" data-view="contrasena">
+          <div class="topbar-back"><button onclick="back()"><i class="fa-solid fa-arrow-left"></i></button><span>Contraseña</span></div>
+          <div class="view-scroll" style="padding-top:8px">
+            <div class="field"><label class="label">Contraseña actual</label><input class="input" type="password" placeholder="••••••••" /></div>
+            <div class="field"><label class="label">Contraseña nueva</label><input class="input" type="password" placeholder="••••••••" /></div>
+            <div class="field"><label class="label">Confirmar contraseña</label><input class="input" type="password" placeholder="••••••••" /></div>
+            <button class="btn btn-primary">Actualizar contraseña</button>
+          </div>
+        </div>
+
+        <div class="view" data-view="terminos">
+          <div class="topbar-back"><button onclick="back()"><i class="fa-solid fa-arrow-left"></i></button><span>Términos y condiciones</span></div>
+          <div class="view-scroll" style="padding-top:8px">
+            <div class="card legal-text">
+              <b>1. Uso del servicio</b>
+              Al usar PrismaCashless aceptas que los saldos cargados en tu dispositivo son válidos únicamente dentro del evento donde fueron emitidos.
+              <b>2. Reembolsos</b>
+              Las solicitudes de reembolso se procesan según la política de cada organizador y pueden tardar hasta 5 días hábiles.
+              <b>3. Dispositivos y seguridad</b>
+              Eres responsable de reportar la pérdida de tu dispositivo o acceso a la app a la brevedad.
+              <b>4. Datos personales</b>
+              Tu información se usa únicamente para operar el evento al que te uniste.
+            </div>
+          </div>
+        </div>
+
+        <div class="view" data-view="eliminar-cuenta">
+          <div class="topbar-back"><button onclick="back()"><i class="fa-solid fa-arrow-left"></i></button><span>Eliminar cuenta</span></div>
+          <div class="view-scroll" style="padding-top:8px">
+            <div class="card" style="border-color:var(--coral-soft);background:var(--coral-soft);display:flex;gap:10px">
+              <i class="fa-solid fa-triangle-exclamation" style="color:var(--rust);margin-top:2px"></i>
+              <span style="font-size:12.5px;color:#8a3522">Esta acción es permanente. Perderás acceso a tu historial, dispositivos y cualquier saldo asociado a tu cuenta.</span>
+            </div>
+            <div class="field"><label class="label">Escribe ELIMINAR para confirmar</label><input class="input" placeholder="ELIMINAR" /></div>
+            <button class="btn btn-destructive-solid">Eliminar mi cuenta</button>
+          </div>
+        </div>
+
+      </div></div>
+
+
+<script>
+  var TAB_ROOTS = ['inicio', 'recargas', 'qr', 'reembolso', 'micuenta'];
+  var PARENTS = {
+    registro: ['login'], 'verificar-codigo': ['login', 'registro'],
+    eventos: ['login'], vincular: ['eventos'],
+    'mapa-evento': ['inicio'],
+    perfil: ['micuenta'], 'mis-eventos': ['micuenta'], 'evento-detalle': ['micuenta', 'mis-eventos'],
+    'metodos-pago': ['micuenta'], ajustes: ['micuenta'], cuenta: ['micuenta'], contrasena: ['micuenta'],
+    terminos: ['micuenta'], 'eliminar-cuenta': ['micuenta'],
+  };
+  var TAB_ICONS = [
+    { id: 'inicio', icon: 'fa-solid fa-house', label: 'Inicio' },
+    { id: 'recargas', icon: 'fa-solid fa-arrows-rotate', label: 'Recargas' },
+    { id: 'qr', icon: 'fa-solid fa-qrcode', label: null, center: true },
+    { id: 'reembolso', icon: 'fa-solid fa-hand-holding-dollar', label: 'Reembolso' },
+    { id: 'micuenta', icon: 'fa-regular fa-user', label: 'Mi cuenta' },
+  ];
+  var stack = ['splash'];
+
+  function tabbarHtml(current) {
+    return TAB_ICONS.map(function (t) {
+      if (t.center) return '<button class="tab-qr" onclick="go(\'' + t.id + '\')"><i class="' + t.icon + '"></i></button>';
+      var active = t.id === current ? ' active' : '';
+      return '<button class="tab-btn' + active + '" onclick="go(\'' + t.id + '\')"><i class="' + t.icon + '"></i><span>' + t.label + '</span></button>';
+    }).join('');
+  }
+
+  function render() {
+    var current = stack[stack.length - 1];
+    document.querySelectorAll('.view').forEach(function (v) {
+      v.classList.toggle('active', v.dataset.view === current);
+    });
+    var html = TAB_ROOTS.indexOf(current) > -1 ? tabbarHtml(current) : '';
+    ['tabbar', 'tabbar2', 'tabbar3', 'tabbar4', 'tabbar5'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.innerHTML = html;
+    });
+    try { parent.postMessage({ type: 'prismacashless-demo', view: current }, '*'); } catch (e) {}
+  }
+
+  function go(view) {
+    stack = (PARENTS[view] || []).concat([view]);
+    render();
+  }
+  function back() {
+    if (stack.length > 1) { stack.pop(); render(); }
+  }
+
+  // escalar el teléfono al tamaño del iframe
+  function fit() {
+    var sc = Math.min(window.innerWidth / 360, window.innerHeight / 740);
+    document.documentElement.style.setProperty('--s', sc > 0 ? sc : 1);
+  }
+  window.addEventListener('resize', fit);
+  fit();
+
+  // montos de recarga: el botón refleja el monto elegido
+  (function () {
+    var view = document.querySelector('[data-view="recargas"]');
+    if (!view) return;
+    var input = view.querySelector('input.input');
+    var cta = view.querySelector('.btn-primary');
+    view.querySelectorAll('.amount').forEach(function (b) {
+      b.addEventListener('click', function () {
+        view.querySelectorAll('.amount').forEach(function (o) { o.classList.toggle('active', o === b); });
+        input.value = b.textContent;
+        cta.textContent = 'Recargar ' + b.textContent;
+      });
+    });
+  })();
+
+  // contador del código QR
+  (function () {
+    var meta = document.querySelector('[data-view="qr"] .code-meta');
+    if (!meta) return;
+    var n = 30;
+    var label = meta.childNodes[1];
+    setInterval(function () {
+      n = n <= 1 ? 30 : n - 1;
+      if (label && label.nodeType === 3) label.nodeValue = ' Se renueva en ' + n + ' s · ';
+    }, 1000);
+  })();
+
+  window.resetDemo = function () { go('splash'); };
+
+  // auto-avance entre cajas del código de verificación
+  document.querySelectorAll('.otp-box').forEach(function (box, i, all) {
+    box.addEventListener('input', function () {
+      box.value = box.value.replace(/[^0-9]/g, '').slice(0, 1);
+      if (box.value && all[i + 1]) all[i + 1].focus();
+    });
+  });
+
+  render();
+</script>
+</body>
+</html>

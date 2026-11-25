@@ -94,6 +94,74 @@
         .nav-links li.nav-mobile-only { display: none; }
         .nav-links a.nav-link-cta { color: var(--accent); font-weight: 700; }
 
+        /* Menú desplegable de Productos */
+        .nav-dropdown { position: relative; }
+        .nav-dropdown-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            background: none;
+            border: none;
+            padding: 0;
+            font: inherit;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--muted);
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .nav-dropdown-toggle:hover,
+        .nav-dropdown.is-open .nav-dropdown-toggle { color: var(--text); }
+        .nav-caret { transition: transform 0.2s; }
+        .nav-dropdown.is-open .nav-caret { transform: rotate(180deg); }
+        .nav-submenu {
+            list-style: none;
+            position: absolute;
+            top: calc(100% + 0.9rem);
+            left: 50%;
+            min-width: 250px;
+            padding: 0.5rem;
+            background: var(--surface);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            box-shadow: 0 18px 50px rgba(0,0,0,0.5);
+            opacity: 0;
+            visibility: hidden;
+            transform: translate(-50%, -6px);
+            transition: opacity 0.2s, transform 0.2s, visibility 0.2s;
+        }
+        .nav-submenu::before {
+            content: '';
+            position: absolute;
+            left: 0; right: 0; top: -0.9rem;
+            height: 0.9rem;
+        }
+        .nav-dropdown.is-open .nav-submenu {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, 0);
+        }
+        @media (hover: hover) and (min-width: 901px) {
+            .nav-dropdown:hover .nav-submenu {
+                opacity: 1;
+                visibility: visible;
+                transform: translate(-50%, 0);
+            }
+            .nav-dropdown:hover .nav-caret { transform: rotate(180deg); }
+            .nav-dropdown:hover .nav-dropdown-toggle { color: var(--text); }
+        }
+        .nav-links .nav-submenu a {
+            display: flex;
+            flex-direction: column;
+            gap: 0.1rem;
+            padding: 0.7rem 0.9rem;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        .nav-links .nav-submenu a:hover { background: var(--surface-2); }
+        .nav-submenu strong { color: var(--text); font-size: 0.9rem; font-weight: 600; }
+        .nav-submenu small { color: var(--muted); font-size: 0.76rem; }
+
         .nav-cta {
             background: var(--accent);
             color: var(--bg);
@@ -629,76 +697,6 @@
         }
         #productos .container { position: relative; z-index: 1; }
 
-        .productos-carousel {
-            position: relative;
-            overflow: hidden;
-            margin-top: 3rem;
-        }
-        .productos-track {
-            display: flex;
-            transition: transform 0.55s cubic-bezier(0.65, 0, 0.35, 1);
-        }
-        .productos-slide {
-            flex: 0 0 100%;
-            min-width: 100%;
-            visibility: hidden;
-        }
-        .productos-slide.is-active {
-            visibility: visible;
-        }
-
-        .productos-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 4rem;
-            align-items: center;
-        }
-        .productos-content, .productos-visual {
-            min-width: 0;
-        }
-
-        .productos-carousel-controls {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 1.5rem;
-            margin-top: 2.5rem;
-        }
-        .prod-carousel-btn {
-            width: 42px; height: 42px;
-            border-radius: 50%;
-            border: 1px solid var(--border);
-            background: var(--surface);
-            color: var(--text);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: border-color 0.2s, background 0.2s, transform 0.2s;
-        }
-        .prod-carousel-btn:hover {
-            border-color: rgba(61,214,253,0.4);
-            background: var(--surface-2);
-            transform: translateY(-2px);
-        }
-        .productos-dots {
-            display: flex;
-            gap: 0.55rem;
-        }
-        .prod-dot {
-            width: 9px; height: 9px;
-            border-radius: 50%;
-            background: var(--subtle);
-            border: none;
-            padding: 0;
-            cursor: pointer;
-            transition: background 0.25s, transform 0.25s;
-        }
-        .prod-dot.is-active {
-            background: var(--accent);
-            transform: scale(1.35);
-        }
-
         .productos-badge {
             display: inline-flex;
             align-items: center;
@@ -742,38 +740,116 @@
             margin-bottom: 2.25rem;
         }
 
-        .productos-proof {
-            display: flex;
-            align-items: center;
-            gap: 0.9rem;
+        .productos-header {
+            max-width: 640px;
+            margin-bottom: 3.5rem;
         }
-        .productos-avatars { display: flex; }
-        .prod-avatar {
-            width: 32px; height: 32px;
-            border-radius: 50%;
-            color: #fff;
-            font-size: 0.72rem;
-            font-weight: 700;
+        .productos-header .section-sub { margin-top: 1rem; }
+
+        .productos-duo {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            align-items: stretch;
+        }
+        .producto-card {
             display: flex;
+            flex-direction: column;
+            min-width: 0;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            overflow: hidden;
+            transition: border-color 0.25s, transform 0.25s;
+        }
+        .producto-card:hover {
+            border-color: rgba(61,214,253,0.3);
+            transform: translateY(-4px);
+        }
+        .producto-card--cash:hover { border-color: rgba(183,221,71,0.3); }
+
+        .producto-media {
+            position: relative;
+            height: 460px;
+            display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            border: 2.5px solid var(--bg-2);
-            margin-left: -8px;
+            gap: 0.9rem;
+            padding: 2rem;
+            background:
+                radial-gradient(ellipse 70% 60% at 50% 40%, var(--accent-dim) 0%, transparent 70%),
+                var(--surface-2);
+            border-bottom: 1px solid var(--border);
         }
-        .prod-avatar:first-child { margin-left: 0; }
-        .productos-proof span {
+        .producto-media--phone {
+            background:
+                radial-gradient(ellipse 70% 60% at 50% 40%, var(--accent-3-dim) 0%, transparent 70%),
+                var(--surface-2);
+        }
+        .producto-media--web .prod-mockup { width: 100%; }
+
+        .producto-video {
+            overflow: hidden;
+            background: #000;
+            border: 1px solid rgba(255,255,255,0.12);
+            box-shadow: 0 0 0 7px rgba(255,255,255,0.03), 0 24px 60px rgba(0,0,0,0.5);
+        }
+        .producto-video video { display: block; width: 100%; height: 100%; object-fit: cover; }
+        .producto-video--phone {
+            height: 100%;
+            max-height: 370px;
+            aspect-ratio: 608 / 1080;
+            border-radius: 28px;
+        }
+        .producto-video--wide {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            border-radius: 16px;
+        }
+        .producto-video-caption {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
             font-size: 0.8rem;
+            font-weight: 600;
             color: var(--muted);
-            font-weight: 500;
         }
+        .producto-video-caption svg { color: var(--accent-3); }
+
+        .producto-body {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            padding: 2rem 2.25rem 2.25rem;
+        }
+        .producto-body .productos-badge { align-self: flex-start; margin-bottom: 1.1rem; }
+        .producto-body h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 800;
+            margin-bottom: 0.75rem;
+        }
+        .producto-body .productos-desc { margin-bottom: 1.5rem; }
+        .producto-feats {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            margin-bottom: 2rem;
+        }
+        .producto-feats li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            font-size: 0.9rem;
+            color: var(--text);
+        }
+        .producto-feats svg { flex-shrink: 0; margin-top: 0.2rem; color: var(--accent); }
+        .producto-card--cash .producto-feats svg { color: var(--accent-3); }
+        .producto-body .productos-actions { margin-top: auto; margin-bottom: 0; }
 
         /* ── Mockup del producto ── */
-        .productos-visual {
-            position: relative;
-            max-width: 88%;
-            margin-right: auto;
-        }
-
         .prod-mockup {
             border-radius: 20px;
             overflow: hidden;
@@ -920,42 +996,6 @@
             opacity: 0.85;
         }
 
-        .prod-float {
-            position: absolute;
-            background: #fff;
-            border-radius: 14px;
-            padding: 0.7rem 1rem;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.35);
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-            z-index: 2;
-            min-width: 190px;
-        }
-        .prod-float-top { top: -18px; right: -20px; animation: prodBob 4s ease-in-out infinite; }
-        .prod-float-bottom { bottom: 20px; left: -24px; animation: prodBob 4s ease-in-out infinite 2s; }
-        @keyframes prodBob {
-            0%, 100% { transform: translateY(0); }
-            50%      { transform: translateY(-6px); }
-        }
-        .prod-float-check {
-            width: 26px; height: 26px;
-            border-radius: 7px;
-            background: var(--accent-2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-        .prod-float-title { font-size: 0.72rem; font-weight: 700; color: #16213E; }
-        .prod-float-sub { font-size: 0.66rem; color: #7A8699; margin-top: 0.1rem; }
-        .prod-float-trend { display: flex; align-items: center; gap: 0.25rem; }
-        .prod-float-trend span {
-            font-size: 1.1rem;
-            font-weight: 800;
-            font-family: 'Montserrat', sans-serif;
-            color: #3F7A1F;
-        }
 
         /* ─── NOSOTROS ─── */
         #nosotros {
@@ -1358,7 +1398,7 @@
                 transition: max-height 0.35s ease, opacity 0.25s ease;
             }
             .nav-links.is-open {
-                max-height: 420px;
+                max-height: 640px;
                 opacity: 1;
             }
             .nav-links li { width: 100%; }
@@ -1368,6 +1408,29 @@
                 border-bottom: 1px solid var(--border);
                 font-size: 1rem;
             }
+            .nav-dropdown-toggle {
+                width: 100%;
+                justify-content: space-between;
+                padding: 1.1rem 2rem;
+                border-bottom: 1px solid var(--border);
+                font-size: 1rem;
+            }
+            .nav-submenu {
+                position: static;
+                display: none;
+                min-width: 0;
+                padding: 0;
+                border: none;
+                border-radius: 0;
+                box-shadow: none;
+                background: rgba(255,255,255,0.02);
+                opacity: 1;
+                visibility: visible;
+                transform: none;
+            }
+            .nav-dropdown.is-open .nav-submenu { display: block; transform: none; }
+            .nav-submenu::before { display: none; }
+            .nav-links .nav-submenu a { padding: 0.85rem 2rem 0.85rem 3rem; border-radius: 0; }
             .hero-inner { grid-template-columns: 1fr; text-align: center; }
             .hero-actions, .hero-stats { justify-content: center; }
             .hero-visual { order: -1; }
@@ -1379,8 +1442,7 @@
             .process-header { grid-template-columns: 1fr; }
             .process-row { grid-template-columns: repeat(2, 1fr); }
             .process-row::before { display: none; }
-            .productos-grid { grid-template-columns: 1fr; gap: 2.5rem; }
-            .productos-visual { max-width: 92%; margin: 0 auto; }
+            .productos-duo { grid-template-columns: 1fr; max-width: 620px; margin: 0 auto; }
             .prod-mockup-body { height: 260px; }
             .nosotros-top { grid-template-columns: 1fr; gap: 2rem; }
             .nosotros-team { grid-template-columns: 1fr; }
@@ -1394,7 +1456,9 @@
             .sectors-grid { grid-template-columns: repeat(2, 1fr); }
             .process-row { grid-template-columns: 1fr; }
             .tech-categories { grid-template-columns: 1fr; }
-            .prod-float { display: none; }
+            .producto-media { height: auto; min-height: 380px; padding: 1.5rem 1rem; }
+            .producto-video--phone { height: 340px; }
+            .producto-body { padding: 1.5rem 1.25rem 1.75rem; }
             .cta-border { inset: 1rem; border-radius: 16px; }
             .form-row { grid-template-columns: 1fr; gap: 0; }
             .contacto-form-card { padding: 1.75rem; }
@@ -1409,8 +1473,13 @@
         <ul class="nav-links" id="navLinks">
             <li><a href="#servicios">Servicios</a></li>
             <li><a href="#sectores">Sectores</a></li>
-            <li><a href="#proceso">Proceso</a></li>
-            <li><a href="#productos">Productos</a></li>
+            <li class="nav-dropdown">
+                <button type="button" class="nav-dropdown-toggle" aria-expanded="false" aria-haspopup="true">Productos <svg class="nav-caret" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+                <ul class="nav-submenu">
+                    <li><a href="coopesaas.html"><strong>CoopeSaaS</strong><small>Gestión para cooperativas</small></a></li>
+                    <li><a href="prismacashless.html"><strong>PrismaCashless</strong><small>Pagos sin efectivo para eventos</small></a></li>
+                </ul>
+            </li>
             <li><a href="#nosotros">Nosotros</a></li>
             <li><a href="#contacto">Contacto</a></li>
             <li class="nav-mobile-only"><a href="login.html" class="nav-link-cta">Ingresar</a></li>
@@ -1605,7 +1674,7 @@
     </section>
 
     <!-- PROCESO -->
-    <section id="proceso">
+    <section id="proceso" hidden>
         <div class="container">
             <div class="process-header">
                 <div>
@@ -1668,262 +1737,75 @@
     <section id="productos">
         <div class="productos-bg-glow"></div>
         <div class="container">
-            <div class="section-label fade-up">Productos</div>
-            <div class="productos-carousel">
-                <div class="productos-track" id="productosTrack">
+            <div class="productos-header">
+                <div class="section-label fade-up">Productos</div>
+                <h2 class="fade-up">Soluciones listas para <em>usar hoy</em></h2>
+                <p class="section-sub fade-up">Dos plataformas propias, probadas en operación real, que puedes empezar a usar sin desarrollar nada desde cero.</p>
+            </div>
 
-                    <!-- SLIDE 1: CoopeSaaS -->
-                    <div class="productos-slide is-active">
-                        <div class="productos-grid">
-                            <div class="productos-content fade-up">
-                                <div class="productos-badge">
-                                    <span class="productos-badge-dot"></span>
-                                    Plataforma SaaS para el Sector Cooperativo
-                                </div>
-                                <h2>La gestión de tu cooperativa,<br><em>en un solo lugar</em></h2>
-                                <p class="productos-desc">Digitaliza y centraliza la administración de tu cooperativa: personal, asociados, órganos sociales, comités y asambleas desde una plataforma segura y fácil de usar.</p>
-                                <div class="productos-actions">
-                                    <a href="https://jeudy5891.github.io/coopesaas/" target="_blank" rel="noopener" class="btn-primary">
-                                        Solicitar Demo
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                                    </a>
-                                </div>
-                                <div class="productos-proof">
-                                    <div class="productos-avatars">
-                                        <div class="prod-avatar" style="background:var(--accent-2)">M</div>
-                                        <div class="prod-avatar" style="background:var(--accent-3)">C</div>
-                                        <div class="prod-avatar" style="background:var(--accent)">A</div>
-                                        <div class="prod-avatar" style="background:var(--accent-2)">J</div>
-                                    </div>
-                                    <span>Únete a las primeras cooperativas en digitalizarse</span>
-                                </div>
-                            </div>
-                            <div class="productos-visual fade-up">
-                                <div class="prod-mockup">
-                                    <div class="prod-mockup-chrome">
-                                        <div class="prod-chrome-dots">
-                                            <span style="background:#FF5F57"></span>
-                                            <span style="background:#FEBC2E"></span>
-                                            <span style="background:#28C840"></span>
-                                        </div>
-                                        <div class="prod-chrome-url">app.coopesaas.com</div>
-                                    </div>
-                                    <div class="prod-mockup-body">
-                                        <div class="prod-sidebar">
-                                            <div class="prod-brand">
-                                                <div class="prod-brand-icon">CS</div>
-                                                <span>CoopeSaaS</span>
-                                            </div>
-                                            <div class="prod-nav">
-                                                <div class="prod-nav-item is-active">
-                                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-                                                    Dashboard
-                                                </div>
-                                                <div class="prod-nav-item">
-                                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-                                                    Personal
-                                                </div>
-                                                <div class="prod-nav-item">
-                                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-                                                    Asociados
-                                                </div>
-                                                <div class="prod-nav-item">
-                                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
-                                                    Órganos
-                                                </div>
-                                                <div class="prod-nav-item">
-                                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                                                    Asambleas
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="prod-main">
-                                            <div class="prod-topbar">
-                                                <span class="prod-page-title">Dashboard</span>
-                                                <div class="prod-avatar-sm">JP</div>
-                                            </div>
-                                            <div class="prod-cards">
-                                                <div class="prod-card">
-                                                    <div class="prod-card-num">248</div>
-                                                    <div class="prod-card-label">Asociados</div>
-                                                </div>
-                                                <div class="prod-card">
-                                                    <div class="prod-card-num">32</div>
-                                                    <div class="prod-card-label">Personal</div>
-                                                </div>
-                                                <div class="prod-card">
-                                                    <div class="prod-card-num">6</div>
-                                                    <div class="prod-card-label">Comités</div>
-                                                </div>
-                                            </div>
-                                            <div class="prod-chart">
-                                                <div class="prod-chart-label">Actividad mensual</div>
-                                                <div class="prod-bars">
-                                                    <div class="prod-bar" style="--h:55%"></div>
-                                                    <div class="prod-bar" style="--h:80%"></div>
-                                                    <div class="prod-bar" style="--h:40%"></div>
-                                                    <div class="prod-bar" style="--h:90%"></div>
-                                                    <div class="prod-bar" style="--h:65%"></div>
-                                                    <div class="prod-bar" style="--h:75%"></div>
-                                                    <div class="prod-bar" style="--h:50%"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="prod-float prod-float-top">
-                                    <div class="prod-float-check">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-                                    </div>
-                                    <div>
-                                        <div class="prod-float-title">Asamblea registrada</div>
-                                        <div class="prod-float-sub">Asamblea Ord. · 20 jun 2026</div>
-                                    </div>
-                                </div>
-                                <div class="prod-float prod-float-bottom">
-                                    <div class="prod-float-trend">
-                                        <span>+18</span>
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#3F7A1F" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-                                    </div>
-                                    <div class="prod-float-sub">Nuevos asociados este mes</div>
-                                </div>
-                            </div>
+            <div class="productos-duo">
+
+                <!-- PRODUCTO 1: CoopeSaaS -->
+                <article class="producto-card fade-up">
+                    <div class="producto-media producto-media--web">
+                        <div class="producto-video producto-video--wide">
+                            <video src="assets/video/Coopesaas_video.mp4" poster="assets/video/coopesaas-video-poster.jpg" controls playsinline preload="none" aria-label="Video: conoce CoopeSaaS"></video>
+                        </div>
+                        <p class="producto-video-caption"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>Recorrido por la plataforma</p>
+                    </div>
+                    <div class="producto-body">
+                        <div class="productos-badge">
+                            <span class="productos-badge-dot"></span>
+                            Plataforma SaaS para cooperativas
+                        </div>
+                        <h3>CoopeSaaS</h3>
+                        <p class="productos-desc">La gestión de tu cooperativa en un solo lugar: personal, asociados, órganos sociales, comités y asambleas desde una plataforma segura y fácil de usar.</p>
+                        <ul class="producto-feats">
+                        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Registro de asociados y personal</li>
+                        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Órganos sociales, comités y asambleas</li>
+                        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Indicadores de la cooperativa en tiempo real</li>
+                        </ul>
+                        <div class="productos-actions">
+                            <a href="coopesaas.html" class="btn-primary">
+                                Solicitar información
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                            </a>
                         </div>
                     </div>
+                </article>
 
-                    <!-- SLIDE 2: AsadaSaaS -->
-                    <div class="productos-slide">
-                        <div class="productos-grid">
-                            <div class="productos-content fade-up">
-                                <div class="productos-badge">
-                                    <span class="productos-badge-dot"></span>
-                                    Plataforma SaaS para Asadas de Costa Rica
-                                </div>
-                                <h2>La gestión de tu Asada,<br><em>en un solo lugar</em></h2>
-                                <p class="productos-desc">Digitaliza la administración de tu Asada: abonados, lecturas de medidores, facturación por consumo de agua y mantenimiento de infraestructura desde una plataforma segura y fácil de usar.</p>
-                                <div class="productos-actions">
-                                    <a href="https://jeudy5891.github.io/Asada/" target="_blank" rel="noopener" class="btn-primary">
-                                        Solicitar Demo
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                                    </a>
-                                </div>
-                                <div class="productos-proof">
-                                    <div class="productos-avatars">
-                                        <div class="prod-avatar" style="background:var(--accent-3)">A</div>
-                                        <div class="prod-avatar" style="background:var(--accent)">G</div>
-                                        <div class="prod-avatar" style="background:var(--accent-2)">R</div>
-                                        <div class="prod-avatar" style="background:var(--accent-3)">M</div>
-                                    </div>
-                                    <span>Únete a las primeras Asadas en digitalizarse</span>
-                                </div>
-                            </div>
-                            <div class="productos-visual fade-up">
-                                <div class="prod-mockup">
-                                    <div class="prod-mockup-chrome">
-                                        <div class="prod-chrome-dots">
-                                            <span style="background:#FF5F57"></span>
-                                            <span style="background:#FEBC2E"></span>
-                                            <span style="background:#28C840"></span>
-                                        </div>
-                                        <div class="prod-chrome-url">app.asadasaas.com</div>
-                                    </div>
-                                    <div class="prod-mockup-body">
-                                        <div class="prod-sidebar">
-                                            <div class="prod-brand">
-                                                <div class="prod-brand-icon" style="background:var(--accent-3);color:var(--bg)">AS</div>
-                                                <span>AsadaSaaS</span>
-                                            </div>
-                                            <div class="prod-nav">
-                                                <div class="prod-nav-item is-active">
-                                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-                                                    Dashboard
-                                                </div>
-                                                <div class="prod-nav-item">
-                                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-                                                    Abonados
-                                                </div>
-                                                <div class="prod-nav-item">
-                                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2s7 7.58 7 12a7 7 0 0 1-14 0c0-4.42 7-12 7-12z"/></svg>
-                                                    Lecturas
-                                                </div>
-                                                <div class="prod-nav-item">
-                                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="18" x2="12" y2="18"/></svg>
-                                                    Facturación
-                                                </div>
-                                                <div class="prod-nav-item">
-                                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-                                                    Mantenimiento
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="prod-main">
-                                            <div class="prod-topbar">
-                                                <span class="prod-page-title">Dashboard</span>
-                                                <div class="prod-avatar-sm" style="background:var(--accent-3);color:var(--bg)">JP</div>
-                                            </div>
-                                            <div class="prod-cards">
-                                                <div class="prod-card">
-                                                    <div class="prod-card-num">1,240</div>
-                                                    <div class="prod-card-label">Abonados</div>
-                                                </div>
-                                                <div class="prod-card">
-                                                    <div class="prod-card-num">8</div>
-                                                    <div class="prod-card-label">Personal</div>
-                                                </div>
-                                                <div class="prod-card">
-                                                    <div class="prod-card-num">3</div>
-                                                    <div class="prod-card-label">Tanques</div>
-                                                </div>
-                                            </div>
-                                            <div class="prod-chart">
-                                                <div class="prod-chart-label">Consumo mensual (m³)</div>
-                                                <div class="prod-bars">
-                                                    <div class="prod-bar" style="--h:60%;background:linear-gradient(to top, var(--accent-3), var(--accent))"></div>
-                                                    <div class="prod-bar" style="--h:45%;background:linear-gradient(to top, var(--accent-3), var(--accent))"></div>
-                                                    <div class="prod-bar" style="--h:85%;background:linear-gradient(to top, var(--accent-3), var(--accent))"></div>
-                                                    <div class="prod-bar" style="--h:70%;background:linear-gradient(to top, var(--accent-3), var(--accent))"></div>
-                                                    <div class="prod-bar" style="--h:95%;background:linear-gradient(to top, var(--accent-3), var(--accent))"></div>
-                                                    <div class="prod-bar" style="--h:55%;background:linear-gradient(to top, var(--accent-3), var(--accent))"></div>
-                                                    <div class="prod-bar" style="--h:80%;background:linear-gradient(to top, var(--accent-3), var(--accent))"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="prod-float prod-float-top">
-                                    <div class="prod-float-check" style="background:var(--accent-3)">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-                                    </div>
-                                    <div>
-                                        <div class="prod-float-title">Lectura registrada</div>
-                                        <div class="prod-float-sub">Medidor #4521 · 18 jun 2026</div>
-                                    </div>
-                                </div>
-                                <div class="prod-float prod-float-bottom">
-                                    <div class="prod-float-trend">
-                                        <span>+32</span>
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#3F7A1F" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-                                    </div>
-                                    <div class="prod-float-sub">Nuevos abonados este mes</div>
-                                </div>
-                            </div>
+                <!-- PRODUCTO 2: PrismaCashless -->
+                <article class="producto-card producto-card--cash fade-up">
+                    <div class="producto-media producto-media--phone">
+                        <div class="producto-video producto-video--phone">
+                            <video src="assets/video/prismacash-promo.mp4" poster="assets/video/prismacash-promo-poster.jpg" controls playsinline preload="metadata" aria-label="Video: cómo funciona PrismaCashless"></video>
+                        </div>
+                        <p class="producto-video-caption">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                            Mira cómo funciona
+                        </p>
+                    </div>
+                    <div class="producto-body">
+                        <div class="productos-badge">
+                            <span class="productos-badge-dot"></span>
+                            Pagos sin efectivo para eventos
+                        </div>
+                        <h3>PrismaCashless</h3>
+                        <p class="productos-desc">Tus asistentes recargan saldo una sola vez desde la app y pagan comida, bebidas y souvenirs con su código QR o NFC. Sin efectivo, sin vueltos y sin filas largas.</p>
+                        <ul class="producto-feats">
+                        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Recargas con tarjeta desde la app o en quioscos</li>
+                        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Cobro en segundos con QR o NFC</li>
+                        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Reembolso del saldo sobrante desde la app</li>
+                        </ul>
+                        <div class="productos-actions">
+                            <a href="prismacashless.html" class="btn-primary">
+                                Solicitar información
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                            </a>
                         </div>
                     </div>
+                </article>
 
-                </div>
-
-                <div class="productos-carousel-controls">
-                    <button type="button" class="prod-carousel-btn" id="prodPrev" aria-label="Producto anterior">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-                    </button>
-                    <div class="productos-dots">
-                        <button type="button" class="prod-dot is-active" data-slide="0" aria-label="Ver CoopeSaaS"></button>
-                        <button type="button" class="prod-dot" data-slide="1" aria-label="Ver AsadaSaaS"></button>
-                    </div>
-                    <button type="button" class="prod-carousel-btn" id="prodNext" aria-label="Producto siguiente">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-                    </button>
-                </div>
             </div>
         </div>
     </section>
@@ -2065,6 +1947,8 @@
                                 <option value="Desarrollo de Aplicaciones">Desarrollo de Aplicaciones</option>
                                 <option value="Automatización de Procesos">Automatización de Procesos</option>
                                 <option value="Integración de Sistemas">Integración de Sistemas</option>
+                                <option value="CoopeSaaS">CoopeSaaS</option>
+                                <option value="PrismaCashless">PrismaCashless</option>
                                 <option value="Otro">Otro</option>
                             </select>
                         </div>
@@ -2160,6 +2044,32 @@
             links.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
         })();
 
+        // Menú desplegable de Productos
+        (() => {
+            document.querySelectorAll('.nav-dropdown').forEach(dd => {
+                const toggle = dd.querySelector('.nav-dropdown-toggle');
+                const setOpen = open => {
+                    dd.classList.toggle('is-open', open);
+                    toggle.setAttribute('aria-expanded', String(open));
+                };
+                toggle.addEventListener('click', e => {
+                    e.stopPropagation();
+                    setOpen(!dd.classList.contains('is-open'));
+                });
+                dd.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setOpen(false)));
+                document.addEventListener('click', e => { if (!dd.contains(e.target)) setOpen(false); });
+                document.addEventListener('keydown', e => { if (e.key === 'Escape') setOpen(false); });
+            });
+        })();
+
+        // Preseleccionar el producto en el formulario (?producto=...)
+        (() => {
+            const producto = new URLSearchParams(location.search).get('producto');
+            const select = document.getElementById('cf-servicio');
+            if (!producto || !select) return;
+            if ([...select.options].some(o => o.value === producto)) select.value = producto;
+        })();
+
         // Numeric count-up effect for stat indicators
         (() => {
             const countEls = document.querySelectorAll('.count-num');
@@ -2228,48 +2138,6 @@
                     submitBtn.innerHTML = 'Enviar mensaje <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg>';
                 }
             });
-        })();
-
-        // Productos carousel
-        (() => {
-            const carousel = document.querySelector('.productos-carousel');
-            const track = document.getElementById('productosTrack');
-            if (!track) return;
-            const slides = track.querySelectorAll('.productos-slide');
-            const dots = document.querySelectorAll('.prod-dot');
-            const prevBtn = document.getElementById('prodPrev');
-            const nextBtn = document.getElementById('prodNext');
-            const slideCount = slides.length;
-            const AUTOPLAY_MS = 6000;
-            let current = 0;
-            let autoplayTimer = null;
-
-            function goTo(index) {
-                current = (index + slideCount) % slideCount;
-                track.style.transform = `translateX(-${current * 100}%)`;
-                slides.forEach((slide, i) => slide.classList.toggle('is-active', i === current));
-                dots.forEach((dot, i) => dot.classList.toggle('is-active', i === current));
-            }
-
-            function startAutoplay() {
-                stopAutoplay();
-                autoplayTimer = setInterval(() => goTo(current + 1), AUTOPLAY_MS);
-            }
-            function stopAutoplay() {
-                if (autoplayTimer) clearInterval(autoplayTimer);
-            }
-            function restartAutoplay() {
-                startAutoplay();
-            }
-
-            prevBtn.addEventListener('click', () => { goTo(current - 1); restartAutoplay(); });
-            nextBtn.addEventListener('click', () => { goTo(current + 1); restartAutoplay(); });
-            dots.forEach((dot, i) => dot.addEventListener('click', () => { goTo(i); restartAutoplay(); }));
-
-            carousel.addEventListener('mouseenter', stopAutoplay);
-            carousel.addEventListener('mouseleave', startAutoplay);
-
-            startAutoplay();
         })();
     </script>
 </body>
